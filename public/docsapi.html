@@ -1,0 +1,2475 @@
+
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kraviona API Reference v1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080c14;
+            --surface: #0d1320;
+            --surface2: #111827;
+            --border: #1e2a3a;
+            --border-light: #243044;
+            --text: #c8d6e8;
+            --text-muted: #5a7290;
+            --text-dim: #3d5068;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59,130,246,0.15);
+            --get: #22c55e;
+            --get-bg: rgba(34,197,94,0.1);
+            --post: #3b82f6;
+            --post-bg: rgba(59,130,246,0.1);
+            --put: #f59e0b;
+            --put-bg: rgba(245,158,11,0.1);
+            --patch: #a78bfa;
+            --patch-bg: rgba(167,139,250,0.1);
+            --delete: #f43f5e;
+            --delete-bg: rgba(244,63,94,0.1);
+            --font-code: 'JetBrains Mono', monospace;
+            --font-ui: 'Syne', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-ui);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ─── SIDEBAR ─────────────────────────────── */
+        .sidebar {
+            width: 272px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .sidebar-logo {
+            padding: 28px 24px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo .logo-mark {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .sidebar-logo .logo-mark span { color: var(--accent); }
+
+        .sidebar-logo .version-badge {
+            display: inline-block;
+            margin-top: 6px;
+            font-family: var(--font-code);
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .nav-section {
+            padding: 20px 0 8px;
+        }
+
+        .nav-section-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 0 24px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 24px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.15s;
+            cursor: pointer;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text);
+            background: rgba(255,255,255,0.03);
+            border-left-color: var(--accent);
+        }
+
+        .nav-item .nav-num {
+            font-family: var(--font-code);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            width: 22px;
+            text-align: right;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 24px;
+        }
+
+        /* ─── MAIN ─────────────────────────────────── */
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 0;
+        }
+
+        /* ─── PAGE HERO ─────────────────────────────── */
+        .page-hero {
+            background: linear-gradient(135deg, var(--surface) 0%, #0a1628 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 64px 64px 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 360px; height: 360px;
+            background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-hero::after {
+            content: 'API';
+            position: absolute;
+            right: 48px; bottom: -20px;
+            font-size: 160px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.02);
+            font-family: var(--font-ui);
+            letter-spacing: -8px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .hero-eyebrow {
+            font-family: var(--font-code);
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item code {
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            background: rgba(255,255,255,0.06);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--text);
+            border: 1px solid var(--border-light);
+        }
+
+        /* ─── CONTENT ─────────────────────────────── */
+        .content {
+            padding: 0 64px 80px;
+        }
+
+        /* ─── SECTION ─────────────────────────────── */
+        .api-section {
+            padding-top: 56px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .section-num {
+            font-family: var(--font-code);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            padding: 2px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .section-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            padding-left: 60px;
+            line-height: 1.6;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+            margin-bottom: 20px;
+        }
+
+        /* ─── SUBSECTION ─────────────────────────── */
+        .subsection-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin: 28px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subsection-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ─── ENDPOINT ─────────────────────────────── */
+        .endpoint {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+            background: var(--surface2);
+        }
+
+        .endpoint:hover { border-color: var(--border-light); }
+        .endpoint.open { border-color: var(--border-light); }
+
+        .ep-trigger {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 18px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .ep-trigger:hover { background: rgba(255,255,255,0.02); }
+
+        .method {
+            font-family: var(--font-code);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            width: 68px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .method.get    { color: var(--get);    background: var(--get-bg);    border: 1px solid rgba(34,197,94,0.2); }
+        .method.post   { color: var(--post);   background: var(--post-bg);   border: 1px solid rgba(59,130,246,0.2); }
+        .method.put    { color: var(--put);    background: var(--put-bg);    border: 1px solid rgba(245,158,11,0.2); }
+        .method.patch  { color: var(--patch);  background: var(--patch-bg);  border: 1px solid rgba(167,139,250,0.2); }
+        .method.delete { color: var(--delete); background: var(--delete-bg); border: 1px solid rgba(244,63,94,0.2); }
+
+        .ep-path {
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            flex: 1;
+        }
+
+        .ep-path .path-param { color: var(--accent); }
+
+        .ep-badges {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .badge {
+            font-family: var(--font-code);
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .badge.public  { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+        .badge.bearer  { background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+        .badge.cookie  { background: rgba(167,139,250,0.1); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.2); }
+        .badge.perm    { background: rgba(245,158,11,0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); font-size: 0.55rem; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .ep-chevron {
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .endpoint.open .ep-chevron { transform: rotate(180deg); }
+
+        /* ─── ENDPOINT BODY ─────────────────────────── */
+        .ep-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .endpoint.open .ep-body { max-height: 2000px; }
+
+        .ep-body-inner {
+            padding: 0 18px 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .ep-desc {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            padding: 14px 0 10px;
+            line-height: 1.65;
+        }
+
+        .ep-label {
+            font-family: var(--font-code);
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin: 14px 0 6px;
+        }
+
+        .ep-params {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .param-tag {
+            font-family: var(--font-code);
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            color: var(--text);
+        }
+
+        .param-tag.optional { color: var(--text-muted); }
+
+        pre {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            color: #7dd3fc;
+            overflow-x: auto;
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        pre .k { color: #94a3b8; }
+        pre .s { color: #86efac; }
+        pre .n { color: #fde68a; }
+        pre .c { color: #475569; font-style: italic; }
+
+        code {
+            font-family: var(--font-code);
+            font-size: 0.78em;
+            background: rgba(255,255,255,0.07);
+            padding: 1px 5px;
+            border-radius: 3px;
+            color: #93c5fd;
+        }
+
+        /* ─── NOTES ─────────────────────────────────── */
+        .note {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: rgba(59,130,246,0.05);
+            border-left: 2px solid var(--accent);
+            padding: 8px 12px;
+            border-radius: 0 4px 4px 0;
+            margin: 8px 0;
+            line-height: 1.55;
+        }
+
+        .note.warn {
+            border-left-color: var(--put);
+            background: rgba(245,158,11,0.05);
+        }
+
+        /* ─── ERROR TABLE ──────────────────────────── */
+        .err-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin-top: 16px;
+        }
+
+        .err-table th {
+            text-align: left;
+            font-family: var(--font-code);
+            font-size: 0.62rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .err-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            vertical-align: top;
+        }
+
+        .err-table tr:last-child td { border-bottom: none; }
+        .err-table tr:hover td { background: rgba(255,255,255,0.015); }
+
+        .status-code {
+            font-family: var(--font-code);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .s2xx { color: var(--get); background: var(--get-bg); }
+        .s4xx { color: #fb923c; background: rgba(251,146,60,0.1); }
+        .s5xx { color: var(--delete); background: var(--delete-bg); }
+
+        /* ─── SEARCH ─────────────────────────────────── */
+        .search-wrap {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .search-input:focus { border-color: var(--accent); }
+        .search-input::placeholder { color: var(--text-dim); }
+
+        /* ─── SCROLLBAR ─────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 6px; }
+
+        /* ─── HIGHLIGHT ─────────────────────────────── */
+        .highlight { background: rgba(59,130,246,0.2); border-radius: 2px; }
+
+        /* ─── MOBILE ─────────────────────────────────── */
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .page-hero, .content { padding-left: 24px; padding-right: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ════════════════════════════ -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">Kraviona<span>.</span>API</div>
+        <span class="version-badge">v1.0</span>
+    </div>
+    <div class="search-wrap">
+        <input type="text" class="search-input" placeholder="Search endpoints…" id="searchInput" oninput="filterEndpoints(this.value)">
+    </div>
+    <div class="nav-section">
+        <div class="nav-section-label">Reference</div>
+        <a class="nav-item" href="#auth"><span class="nav-num">00</span>Authentication</a>
+        <a class="nav-item" href="#users"><span class="nav-num">—</span>Admin: Users</a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" href="#site-config"><span class="nav-num">01</span>Site Config</a>
+        <a class="nav-item" href="#services"><span class="nav-num">02</span>Services</a>
+        <a class="nav-item" href="#portfolio"><span class="nav-num">03</span>Portfolio & Gallery</a>
+        <a class="nav-item" href="#team"><span class="nav-num">04</span>Team & Testimonials</a>
+        <a class="nav-item" href="#pricing"><span class="nav-num">05</span>Pricing</a>
+        <a class="nav-item" href="#blog"><span class="nav-num">06</span>Blog</a>
+        <a class="nav-item" href="#media"><span class="nav-num">07</span>Media</a>
+        <a class="nav-item" href="#messages"><span class="nav-num">08</span>Messages & Leads</a>
+        <a class="nav-item" href="#subscribers"><span class="nav-num">09</span>Subscribers & Campaigns</a>
+        <a class="nav-item" href="#notifications"><span class="nav-num">10</span>Notifications</a>
+        <a class="nav-item" href="#analytics"><span class="nav-num">11</span>Analytics</a>
+        <a class="nav-item" href="#audit"><span class="nav-num">12</span>Audit Logs</a>
+        <a class="nav-item" href="#settings"><span class="nav-num">13</span>Settings</a>
+        <a class="nav-item" href="#seo"><span class="nav-num">14</span>SEO</a>
+        <a class="nav-item" href="#content-decay"><span class="nav-num">15</span>Content Decay</a>
+        <a class="nav-item" href="#tech-stack"><span class="nav-num">16</span>Tech Stack</a>
+        <a class="nav-item" href="#dashboard"><span class="nav-num">17</span>Dashboard</a>
+        <a class="nav-item" href="#errors"><span class="nav-num">18</span>Error Reference</a>
+    </div>
+</nav>
+
+<!-- ═══════════ MAIN ══════════════════════════════ -->
+<main class="main">
+
+    <!-- HERO -->
+    <div class="page-hero">
+        <div class="hero-eyebrow">REST API — Complete Reference</div>
+        <h1 class="hero-title">Kraviona API<br>Reference</h1>
+        <p class="hero-desc">
+            Every route consumed by the admin panel and public site. URL paths, request shapes, response envelopes, RBAC requirements, and error codes — all in one place.
+        </p>
+        <div class="hero-meta">
+            <div class="meta-item">Prod <code>https://api.kraviona.com</code></div>
+            <div class="meta-item">Dev <code>http://localhost:3123</code></div>
+            <div class="meta-item">Envelope <code>{ success, data, message }</code></div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ══════ 0. AUTH ══════ -->
+        <div class="api-section" id="auth">
+            <div class="section-header">
+                <span class="section-num">§0</span>
+                <h2 class="section-title">Authentication</h2>
+            </div>
+            <p class="section-desc">JWT (RS256) + httpOnly refresh cookie. Access token lifetime: 15 min. Refresh token: 7 days with family-based rotation and theft detection.</p>
+            <div class="section-divider"></div>
+
+            <!-- create-account -->
+            <div class="endpoint" data-search="POST /auth/create-account signup register name username email phone password">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/create-account</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Creates a new admin account and triggers an OTP email verification.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"name"</span>: <span class="s">"Aarav Sharma"</span>, <span class="k">"username"</span>: <span class="s">"aarav"</span>, <span class="k">"email"</span>: <span class="s">"aarav@kraviona.com"</span>, <span class="k">"phone"</span>: <span class="s">"9876543210"</span>, <span class="k">"password"</span>: <span class="s">"securePass#99"</span> }</pre>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"userId"</span>: <span class="s">"u-001"</span>, <span class="k">"email"</span>: <span class="s">"aarav@kraviona.com"</span> } }</pre>
+                        <div class="note">OTP is sent to the provided email. Use <code>POST /auth/verify-account</code> to complete signup.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- verify-account -->
+            <div class="endpoint" data-search="POST /auth/verify-account otp verification signup">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/verify-account</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Verifies the OTP sent during signup. Returns access token and user profile on success.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"email"</span>: <span class="s">"aarav@kraviona.com"</span>, <span class="k">"otp"</span>: <span class="s">"847291"</span> }</pre>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"accessToken"</span>: <span class="s">"eyJhbGci..."</span>, <span class="k">"user"</span>: { <span class="k">"id"</span>: <span class="s">"u-001"</span>, <span class="k">"role"</span>: <span class="s">"editor"</span> } } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- resend-otp -->
+            <div class="endpoint" data-search="POST /auth/resend-otp email otp rate limit signup login">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/resend-otp</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Resends a one-time password. Rate-limited to 1 request per 30 s, 5 per hour per email.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"email"</span>: <span class="s">"aarav@kraviona.com"</span>, <span class="k">"purpose"</span>: <span class="s">"signup"</span> <span class="c">// or "login"</span> }</pre>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"ok"</span>: <span class="n">true</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- login-password -->
+            <div class="endpoint" data-search="POST /auth/login-password email password login">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/login-password</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Authenticates via email + password (Argon2id). Sets httpOnly <code>kra_access</code> (15 min) and <code>kra_refresh</code> (7 d) cookies. Rate-limited 5/min/IP, 10/min/email.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"email"</span>: <span class="s">"admin@kraviona.com"</span>, <span class="k">"password"</span>: <span class="s">"securePass#99"</span> }</pre>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: {
+  <span class="k">"accessToken"</span>: <span class="s">"eyJhbGciOiJSUzI1NiIsInR5..."</span>,
+  <span class="k">"user"</span>: { <span class="k">"id"</span>: <span class="s">"u-001"</span>, <span class="k">"name"</span>: <span class="s">"Aarav"</span>, <span class="k">"email"</span>: <span class="s">"..."</span>, <span class="k">"role"</span>: <span class="s">"admin"</span>, <span class="k">"permissions"</span>: [<span class="s">"*"</span>] }
+} }</pre>
+                        <div class="note">Sets cookies: <code>kra_access</code> (HttpOnly, SameSite=Strict, Path=/, Max-Age=900) · <code>kra_refresh</code> (HttpOnly, SameSite=Strict, Path=/auth, Max-Age=604800) · <code>XSRF-TOKEN</code> (non-HttpOnly, Max-Age=900)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- login-otp -->
+            <div class="endpoint" data-search="POST /auth/login-otp email otp two step login">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/login-otp</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Two-step OTP login. Call with just <code>email</code> to trigger OTP, then again with <code>email + otp</code> to verify. 5 wrong attempts → 15 min lockout.</p>
+                        <div class="ep-label">Step 1 — Request OTP</div>
+                        <pre>{ <span class="k">"email"</span>: <span class="s">"admin@kraviona.com"</span> }</pre>
+                        <div class="ep-label">Step 2 — Verify OTP</div>
+                        <pre>{ <span class="k">"email"</span>: <span class="s">"admin@kraviona.com"</span>, <span class="k">"otp"</span>: <span class="s">"123456"</span> }</pre>
+                        <div class="ep-label">Response (Step 2) <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"accessToken"</span>: <span class="s">"eyJhbGci..."</span>, <span class="k">"user"</span>: { ... } } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- refresh-token -->
+            <div class="endpoint" data-search="POST /auth/refresh-token cookie rotate">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/refresh-token</span>
+                    <div class="ep-badges"><span class="badge cookie">Cookie</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Rotates the refresh token. Requires a valid <code>kra_refresh</code> cookie (no request body). Revokes the old token and issues a fresh pair. Presenting a previously-revoked token kills the entire token family and forces re-login.</p>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"accessToken"</span>: <span class="s">"eyJhbGci..."</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- logout -->
+            <div class="endpoint" data-search="POST /auth/logout cookie revoke">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/auth/logout</span>
+                    <div class="ep-badges"><span class="badge cookie">Cookie</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Revokes the entire refresh token family and clears cookies. No request body needed.</p>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"ok"</span>: <span class="n">true</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- me -->
+            <div class="endpoint" data-search="GET /auth/me user profile permissions bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/auth/me</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns the current authenticated user's profile and resolved permissions list.</p>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: {
+  <span class="k">"id"</span>: <span class="s">"u-001"</span>, <span class="k">"name"</span>: <span class="s">"Aarav Sharma"</span>,
+  <span class="k">"email"</span>: <span class="s">"aarav@kraviona.com"</span>, <span class="k">"role"</span>: <span class="s">"admin"</span>,
+  <span class="k">"permissions"</span>: [<span class="s">"post.create"</span>, <span class="s">"post.publish"</span>, <span class="s">"..."</span>]
+} }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- edit-account -->
+            <div class="endpoint" data-search="PUT /auth/edit-account name phone avatar locale timezone self edit bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/auth/edit-account</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Allows an authenticated user to update their own profile (name, phone, avatar, locale, timezone). Self-edit only — cannot change role or permissions.</p>
+                        <div class="ep-label">Request Body (partial)</div>
+                        <pre>{ <span class="k">"name"</span>: <span class="s">"Aarav S."</span>, <span class="k">"phone"</span>: <span class="s">"9876543210"</span>, <span class="k">"locale"</span>: <span class="s">"en-IN"</span>, <span class="k">"timezone"</span>: <span class="s">"Asia/Kolkata"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Users subsection -->
+            <div class="subsection-title" id="users">Admin: Users</div>
+
+            <div class="endpoint" data-search="GET /admin/users role status list paginated bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/users</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">user.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Paginated list of all admin users. Filter by role, status, or free-text search.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">role=admin</span>
+                            <span class="param-tag optional">status=active</span>
+                            <span class="param-tag optional">q=search</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">pageSize=20</span>
+                            <span class="param-tag optional">sort=-createdAt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /admin/user role update assign bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/admin/user/role</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">user.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Assigns a new role to a user. Cannot elevate a user above the requester's own permission set.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"userId"</span>: <span class="s">"u-042"</span>, <span class="k">"roleSlug"</span>: <span class="s">"editor"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /admin/user block isBlocked bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/admin/user/<span class="path-param">:id</span>/block</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">user.block</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Blocks or unblocks a user. Blocked users receive <code>403 account_blocked</code> on all requests until unblocked.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"isBlocked"</span>: <span class="n">true</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /admin/user soft delete inactive bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/admin/user/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">user.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Soft-deletes a user (sets <code>status=inactive</code>). The user record and audit history are preserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 1. SITE CONFIG ══════ -->
+        <div class="api-section" id="site-config">
+            <div class="section-header">
+                <span class="section-num">§1</span>
+                <h2 class="section-title">Site Config</h2>
+            </div>
+            <p class="section-desc">Singleton documents keyed by <code>key</code>. Covers Hero, Nav, Footer, About, Analytics, SEO defaults, and all page-level configs. Public reads are cached 5 min.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /v1/public/site-config public cached merged blob">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/site-config</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns the merged site-config blob containing all singleton sections. Cached at the CDN for 5 minutes. Used by the public site to bootstrap.</p>
+                        <div class="note">Cache is busted automatically when <code>PUT /v1/site-config</code> is called.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /v1/site-config bearer siteConfig update full replace">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/site-config</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">siteConfig.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Full replace or deep-merge of the site config. Accepts <code>Partial&lt;SiteConfig.data&gt;</code>. Busts the public cache on success.</p>
+                        <div class="ep-label">Request Body (example)</div>
+                        <pre>{ <span class="k">"hero"</span>: { <span class="k">"headline"</span>: <span class="s">"Build. Ship. Grow."</span>, <span class="k">"subtext"</span>: <span class="s">"..."</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /v1/public singleton keys home about contact blog services footer nav socials">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/<span class="path-param">:key</span></span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Fetch a single singleton section by key. Available keys:</p>
+                        <div class="ep-params">
+                            <span class="param-tag">home</span>
+                            <span class="param-tag">about</span>
+                            <span class="param-tag">contact</span>
+                            <span class="param-tag">blog-page</span>
+                            <span class="param-tag">services-page</span>
+                            <span class="param-tag">pricing-page</span>
+                            <span class="param-tag">case-studies-page</span>
+                            <span class="param-tag">gallery-page</span>
+                            <span class="param-tag">footer</span>
+                            <span class="param-tag">nav</span>
+                            <span class="param-tag">socials</span>
+                            <span class="param-tag">newsletter</span>
+                            <span class="param-tag">analytics</span>
+                            <span class="param-tag">address</span>
+                            <span class="param-tag">contactInfo</span>
+                            <span class="param-tag">maintenance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /v1/site-config key bearer update singleton">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/site-config/<span class="path-param">:key</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">siteConfig.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Updates a single config section by key. Body: <code>{ "data": { ... } }</code>. Writes an audit log entry with changed field paths.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"data"</span>: { <span class="k">"ctaLabel"</span>: <span class="s">"Get Started"</span>, <span class="k">"ctaUrl"</span>: <span class="s">"/contact"</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 2. SERVICES ══════ -->
+        <div class="api-section" id="services">
+            <div class="section-header">
+                <span class="section-num">§2</span>
+                <h2 class="section-title">Services</h2>
+            </div>
+            <p class="section-desc">Core service offerings. Each service can have per-service landing page config embedded in <code>pageConfig</code>.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /v1/public/services featured active list public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/services</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Fetch all active services for the public-facing site, sorted by display order.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">featured=true</span>
+                            <span class="param-tag optional">active=true</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">pageSize=20</span>
+                            <span class="param-tag optional">sort=order</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /v1/public/services/nav navbar subset name slug order cached">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/services/nav</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns the navbar subset only (<code>_id, name, slug, order</code>). Cached for faster nav renders.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /v1/public/services slug single page config">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/services/<span class="path-param">:slug</span></span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns a single service with its merged <code>pageConfig</code> (used by per-service landing pages).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /v1/services bearer admin list drafts">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/services</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">service.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Admin list of all services including inactive/draft ones. Supports standard pagination and filtering.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /v1/services create bearer service.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/services</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">service.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Creates a new service. Slug is auto-generated from name if not provided.</p>
+                        <div class="ep-label">Request Body (key fields)</div>
+                        <pre>{ <span class="k">"name"</span>: <span class="s">"MERN Stack Development"</span>, <span class="k">"slug"</span>: <span class="s">"mern-stack"</span>, <span class="k">"shortDesc"</span>: <span class="s">"..."</span>, <span class="k">"isActive"</span>: <span class="n">true</span>, <span class="k">"featured"</span>: <span class="n">false</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /v1/services id update bearer service.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/services/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">service.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Full update of a service. Also accepts the full <code>pageConfig</code> blob for per-service landing page management.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /v1/services id soft delete bearer service.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/v1/services/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">service.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Soft-deletes (sets <code>isActive=false</code>). The service remains in the DB and can be restored.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /v1/services/reorder order array bearer service.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/services/reorder</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">service.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Reorders services by providing a full ordered array of IDs. Sets the <code>order</code> field on each document atomically.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"order"</span>: [<span class="s">"id_1"</span>, <span class="s">"id_2"</span>, <span class="s">"id_3"</span>] }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 3. PORTFOLIO ══════ -->
+        <div class="api-section" id="portfolio">
+            <div class="section-header">
+                <span class="section-num">§3</span>
+                <h2 class="section-title">Portfolio, Gallery & Case Studies</h2>
+            </div>
+            <p class="section-desc">Content showcasing past work. Portfolio items, curated gallery collections, and long-form case studies all follow the same CRUD pattern.</p>
+            <div class="section-divider"></div>
+
+            <div class="subsection-title">Portfolio</div>
+            <div class="endpoint" data-search="GET /v1/public/portfolio featured industry list">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/portfolio</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">featured=true</span>
+                            <span class="param-tag optional">industry=fintech</span>
+                            <span class="param-tag optional">q=search</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">pageSize=20</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint" data-search="POST /v1/portfolio create bearer portfolio.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/portfolio</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">portfolio.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new portfolio item.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="PUT /v1/portfolio id update bearer portfolio.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/portfolio/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">portfolio.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Updates a portfolio item.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="DELETE /v1/portfolio id bearer portfolio.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/v1/portfolio/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">portfolio.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Soft-deletes a portfolio item.</p></div></div>
+            </div>
+
+            <div class="subsection-title">Case Studies</div>
+            <div class="endpoint" data-search="GET /v1/public/case-studies list public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/case-studies</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Lists all published case studies.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="POST /v1/case-studies create bearer caseStudy.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/case-studies</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">caseStudy.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new case study.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="PUT /v1/case-studies id update bearer caseStudy.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/case-studies/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">caseStudy.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Updates an existing case study.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="DELETE /v1/case-studies id bearer caseStudy.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/v1/case-studies/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">caseStudy.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Deletes a case study.</p></div></div>
+            </div>
+
+            <div class="subsection-title">Gallery</div>
+            <div class="endpoint" data-search="GET /v1/public/galleries curated collections list">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/galleries</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Lists all published gallery collections.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="POST /v1/galleries create bearer gallery.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/galleries</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">gallery.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new gallery collection.</p></div></div>
+            </div>
+        </div>
+
+        <!-- ══════ 4. TEAM & TESTIMONIALS ══════ -->
+        <div class="api-section" id="team">
+            <div class="section-header">
+                <span class="section-num">§4</span>
+                <h2 class="section-title">Team & Testimonials</h2>
+            </div>
+            <p class="section-desc">Team member profiles and client testimonials. Testimonials require an <code>approve</code> step before appearing publicly.</p>
+            <div class="section-divider"></div>
+
+            <div class="subsection-title">Team</div>
+            <div class="endpoint" data-search="GET /v1/public/team list public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/team</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Returns all active team members in display order.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="POST /v1/team create bearer team.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/team</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">team.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new team member.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="PUT /v1/team reorder order bearer team.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/team/reorder</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">team.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Reorders team members by providing a full ordered array of IDs.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"order"</span>: [<span class="s">"id_1"</span>, <span class="s">"id_2"</span>, <span class="s">"id_3"</span>] }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection-title">Testimonials</div>
+            <div class="endpoint" data-search="GET /v1/public/testimonials featured status approved public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/testimonials</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">featured=true</span>
+                            <span class="param-tag optional">status=approved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint" data-search="PUT /v1/testimonials id approve bearer testimonial.approve">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/testimonials/<span class="path-param">:id</span>/approve</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">testimonial.approve</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Approves a testimonial so it appears on the public site. Transition: <code>pending → approved</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 5. PRICING ══════ -->
+        <div class="api-section" id="pricing">
+            <div class="section-header">
+                <span class="section-num">§5</span>
+                <h2 class="section-title">Pricing</h2>
+            </div>
+            <p class="section-desc">Pricing plan management. All money values are stored as integer minor units (paise). Currency is on the <code>pricing.currency</code> field.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /v1/public/pricing active sort order public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/pricing</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">active=true</span>
+                            <span class="param-tag optional">sort=order</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint" data-search="POST /v1/pricing create bearer pricing.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/pricing</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">pricing.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new pricing plan. Price values in minor units (paise).</p></div></div>
+            </div>
+            <div class="endpoint" data-search="PUT /v1/pricing id update bearer pricing.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/pricing/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">pricing.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Updates a pricing plan.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="DELETE /v1/pricing id bearer pricing.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/v1/pricing/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">pricing.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Deletes a pricing plan.</p></div></div>
+            </div>
+        </div>
+
+        <!-- ══════ 6. BLOG ══════ -->
+        <div class="api-section" id="blog">
+            <div class="section-header">
+                <span class="section-num">§6</span>
+                <h2 class="section-title">Blog — Posts, Categories, Comments</h2>
+            </div>
+            <p class="section-desc">Post body is TipTap JSON (<code>bodyJson</code>) plus the rendered HTML (<code>body</code>). Legacy paths (<code>/posts</code>, <code>/post/*</code>) are kept at root for SEO compatibility.</p>
+            <div class="section-divider"></div>
+
+            <div class="subsection-title">Posts</div>
+            <div class="endpoint" data-search="GET /posts category status published search q sort public paginated">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/posts</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Paginated public post list. Only returns <code>status=published</code> entries unless an authenticated admin request.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">category=slug</span>
+                            <span class="param-tag optional">status=published</span>
+                            <span class="param-tag optional">q=search</span>
+                            <span class="param-tag optional">tag=javascript</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">pageSize=20</span>
+                            <span class="param-tag optional">sort=-publishedAt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /post slug single public views increment">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/post/<span class="path-param">:slug</span></span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Fetches a single post by slug. Increments the post's <code>views</code> counter on each unique visit (tracked via visitor cookie).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /post reaction slug emoji likes hearts public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/post/reaction/<span class="path-param">:slug</span></span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Adds an emoji reaction to a post. One reaction per visitor per post (tracked via <code>kra_vid</code> cookie).</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"type"</span>: <span class="s">"👍"</span> <span class="c">// or ❤ 🔥 💡</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /post/create create bearer post.create tiptap body bodyJson">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/post/create</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">post.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Creates a new blog post. Requires both TipTap rendered HTML (<code>body</code>) and the raw JSON (<code>bodyJson</code>). Post starts as <code>draft</code> unless <code>status="published"</code> is set and the user has <code>post.publish</code> permission.</p>
+                        <div class="ep-label">Request Body (key fields)</div>
+                        <pre>{ <span class="k">"title"</span>: <span class="s">"MERN Stack Best Practices"</span>, <span class="k">"slug"</span>: <span class="s">"mern-stack-best-practices"</span>,
+  <span class="k">"body"</span>: <span class="s">"&lt;p&gt;...&lt;/p&gt;"</span>, <span class="k">"bodyJson"</span>: { ... },
+  <span class="k">"category"</span>: <span class="s">"cat-id"</span>, <span class="k">"status"</span>: <span class="s">"draft"</span>,
+  <span class="k">"seo"</span>: { <span class="k">"metaTitle"</span>: <span class="s">"..."</span>, <span class="k">"metaDescription"</span>: <span class="s">"..."</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /post slug update bearer post.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/post/<span class="path-param">:slug</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">post.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Updates an existing post. Changing <code>status</code> to <code>published</code> additionally requires <code>post.publish</code>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /post slug delete bearer post.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/post/<span class="path-param">:slug</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">post.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Soft-deletes a post by slug.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /keywords slug focus keywords seo post.update bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/keywords/<span class="path-param">:slug</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">post.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Updates the focus keywords for a post's SEO scoring. Max 8 keywords.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"focusKeywords"</span>: [<span class="s">"mern"</span>, <span class="s">"node.js"</span>, <span class="s">"react"</span>] }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /v1/admin/posts admin list drafts bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/admin/posts</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">post.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Admin list that includes drafts, scheduled, and archived posts. Supports all standard filtering and pagination params.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection-title">Categories</div>
+            <div class="endpoint" data-search="GET /categories/public active list public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/categories/public</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Returns all active categories (used in the blog sidebar/filters).</p></div></div>
+            </div>
+            <div class="endpoint" data-search="GET /categories/admin all drafts bearer list">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/categories/admin</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">category.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Admin list including inactive categories.</p></div></div>
+            </div>
+            <div class="endpoint" data-search="POST /category/new create bearer category.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/category/new</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">category.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new post category.</p></div></div>
+            </div>
+
+            <div class="subsection-title">Comments</div>
+            <div class="endpoint" data-search="POST /v1/public/posts slug comments create public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/public/posts/<span class="path-param">:slug</span>/comments</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Creates a public comment. Returns <code>status="pending"</code> — requires admin approval before appearing publicly.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"author"</span>: <span class="s">"John Doe"</span>, <span class="k">"email"</span>: <span class="s">"john@example.com"</span>, <span class="k">"body"</span>: <span class="s">"Great article!"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint" data-search="GET /admin/comments post status list bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/comments</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">comment.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">post=postId</span>
+                            <span class="param-tag optional">status=pending</span>
+                            <span class="param-tag optional">page=1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="endpoint" data-search="PUT /admin/comment id status approved rejected spam bearer comment.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/admin/comment/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">comment.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Approves, rejects, or marks a comment as spam.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"status"</span>: <span class="s">"approved"</span> <span class="c">// or "rejected" | "spam"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 7. MEDIA ══════ -->
+        <div class="api-section" id="media">
+            <div class="section-header">
+                <span class="section-num">§7</span>
+                <h2 class="section-title">Media</h2>
+            </div>
+            <p class="section-desc">File upload to S3, media library management. Uploads are streamed (never buffered). ClamAV scan runs async in a worker. Max: 50 MB (images), 200 MB (video).</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /files folder kind q starred page bearer list">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/files</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">media.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">folder=Marketing</span>
+                            <span class="param-tag optional">kind=image</span>
+                            <span class="param-tag optional">q=hero</span>
+                            <span class="param-tag optional">starred=true</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">pageSize=40</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /upload multipart file S3 stream bearer media.upload">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/upload</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">media.upload</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Uploads a file to S3 via <code>multipart/form-data</code>. Server streams directly to S3. Returns the new media document with a <code>scan.status="pending"</code>; the ClamAV worker updates the row asynchronously.</p>
+                        <div class="ep-label">Form Fields</div>
+                        <div class="ep-params">
+                            <span class="param-tag">file (required)</span>
+                            <span class="param-tag optional">folder</span>
+                            <span class="param-tag optional">alt</span>
+                            <span class="param-tag optional">caption</span>
+                            <span class="param-tag optional">tags</span>
+                        </div>
+                        <div class="ep-label">Response <code>201</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: {
+  <span class="k">"_id"</span>: <span class="s">"f-001"</span>, <span class="k">"url"</span>: <span class="s">"https://cdn.kraviona.com/..."</span>,
+  <span class="k">"variants"</span>: [{ <span class="k">"name"</span>: <span class="s">"thumb"</span>, <span class="k">"url"</span>: <span class="s">"..."</span>, <span class="k">"width"</span>: <span class="n">320</span> }],
+  <span class="k">"scan"</span>: { <span class="k">"status"</span>: <span class="s">"pending"</span> }
+} }</pre>
+                        <div class="note warn">Magic-byte check is performed server-side regardless of <code>Content-Type</code> header. Virus-positive files are deleted and return <code>502 { code: "upload_failed", meta: { reason: "virus_detected" } }</code>.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /files id alt caption folder tags starred bearer media.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/files/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">media.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Updates metadata for a file. Does not replace the file binary.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"alt"</span>: <span class="s">"Hero illustration"</span>, <span class="k">"caption"</span>: <span class="s">"Q1 2026"</span>, <span class="k">"folder"</span>: <span class="s">"Marketing"</span>, <span class="k">"starred"</span>: <span class="n">true</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /files id S3 variants bearer media.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/files/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">media.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Removes the file from S3, deletes all variants, and removes the DB record. This action is irreversible.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /files id variants transcode worker bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/files/<span class="path-param">:id</span>/variants</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">media.upload</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Re-triggers the transcode worker for an existing file (useful if a variant failed). The worker runs async and emits progress via Socket.IO.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 8. MESSAGES ══════ -->
+        <div class="api-section" id="messages">
+            <div class="section-header">
+                <span class="section-num">§8</span>
+                <h2 class="section-title">Messages & Leads</h2>
+            </div>
+            <p class="section-desc">Contact form submissions double as CRM leads. New submissions arrive via the public endpoint and flow through the lead pipeline via admin endpoints. Live updates via Socket.IO <code>/leads</code> namespace.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="POST /client/send-message public contact form rate limited">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/client/send-message</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Public contact form endpoint. Creates a <code>Message</code> with <code>status="new"</code>. Highly rate-limited to prevent spam. Also available at <code>/v1/public/contact</code> (legacy alias).</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"name"</span>: <span class="s">"John Doe"</span>, <span class="k">"email"</span>: <span class="s">"john@example.com"</span>,
+  <span class="k">"phone"</span>: <span class="s">"9876543210"</span>, <span class="k">"message"</span>: <span class="s">"Interested in MERN stack."</span> }</pre>
+                        <div class="ep-label">Response <code>201</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"id"</span>: <span class="s">"msg-001"</span>, <span class="k">"status"</span>: <span class="s">"new"</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/messages status assignedTo source q list bearer lead.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/messages</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">status=new</span>
+                            <span class="param-tag optional">assignedTo=userId</span>
+                            <span class="param-tag optional">source=contact_form</span>
+                            <span class="param-tag optional">q=john</span>
+                            <span class="param-tag optional">from=2026-01-01</span>
+                            <span class="param-tag optional">to=2026-06-30</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">pageSize=20</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /admin/messages id partial update status bearer lead.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/admin/messages/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Partial update for a message/lead. Typical use: update <code>status</code>, <code>service</code>, or pipeline stage.</p>
+                        <div class="ep-label">Request Body (example)</div>
+                        <pre>{ <span class="k">"status"</span>: <span class="s">"contacted"</span>, <span class="k">"service"</span>: <span class="s">"mern-stack"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /admin/messages id assign assignedTo bearer lead.assign">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/admin/messages/<span class="path-param">:id</span>/assign</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.assign</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Assigns or unassigns a lead to an admin user. Pass <code>null</code> to clear assignment.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"assignedTo"</span>: <span class="s">"u-001"</span> <span class="c">// or null</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /admin/messages id note body bearer lead.note">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/admin/messages/<span class="path-param">:id</span>/note</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.note</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Appends an internal note to a lead. Notes are visible only to admins.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"body"</span>: <span class="s">"Followed up via email. Interested in Phase 1 proposal."</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/leads/stats total new contacted qualified proposal closed bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/leads/stats</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns a summary of the lead pipeline for the dashboard KPI cards.</p>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"total"</span>: <span class="n">247</span>, <span class="k">"new"</span>: <span class="n">12</span>, <span class="k">"contacted"</span>: <span class="n">31</span>, <span class="k">"qualified"</span>: <span class="n">18</span>,
+  <span class="k">"proposal"</span>: <span class="n">7</span>, <span class="k">"closed_won"</span>: <span class="n">54</span>, <span class="k">"closed_lost"</span>: <span class="n">22</span>,
+  <span class="k">"thisMonth"</span>: <span class="n">19</span>, <span class="k">"chart"</span>: [{ <span class="k">"day"</span>: <span class="s">"2026-06-01"</span>, <span class="k">"count"</span>: <span class="n">3</span> }] }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 9. SUBSCRIBERS & CAMPAIGNS ══════ -->
+        <div class="api-section" id="subscribers">
+            <div class="section-header">
+                <span class="section-num">§9</span>
+                <h2 class="section-title">Subscribers & Campaigns</h2>
+            </div>
+            <p class="section-desc">Email newsletter subscriptions with double opt-in, and campaign management with scheduling and send stats.</p>
+            <div class="section-divider"></div>
+
+            <div class="subsection-title">Subscribers</div>
+            <div class="endpoint" data-search="POST /v1/public/newsletter/subscribe double opt-in email rate limited">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/public/newsletter/subscribe</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Creates a new newsletter subscription with double opt-in. A confirmation email is sent automatically. Rate-limited.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"email"</span>: <span class="s">"reader@example.com"</span>, <span class="k">"name"</span>: <span class="s">"Jane"</span>, <span class="k">"source"</span>: <span class="s">"blog-footer"</span> }</pre>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"confirmTokenSent"</span>: <span class="n">true</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /v1/public/newsletter/confirm token email link confirmation">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/newsletter/confirm</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Confirms a subscription via token sent in the confirmation email. Transitions <code>pending → confirmed</code>.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params"><span class="param-tag">token=abc123...</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /subscribers status q page bearer subscriber.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/subscribers</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">subscriber.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">status=confirmed</span>
+                            <span class="param-tag optional">q=email</span>
+                            <span class="param-tag optional">page=1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection-title">Campaigns</div>
+            <div class="endpoint" data-search="GET /admin/campaigns status q list bearer campaign.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/campaigns</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">campaign.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">status=draft</span>
+                            <span class="param-tag optional">q=search</span>
+                            <span class="param-tag optional">page=1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /admin/campaigns create bearer campaign.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/admin/campaigns</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">campaign.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Creates a new email campaign in <code>draft</code> status.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="POST /admin/campaigns id send scheduledFor enqueue bearer campaign.send">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/admin/campaigns/<span class="path-param">:id</span>/send</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">campaign.send</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Enqueues the <code>email.sendCampaign</code> BullMQ job. Requires an <code>Idempotency-Key</code> header. Can be scheduled for the future.</p>
+                        <div class="ep-label">Request Body (optional)</div>
+                        <pre>{ <span class="k">"scheduledFor"</span>: <span class="s">"2026-07-01T10:00:00Z"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/campaigns id stats delivery open click bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/campaigns/<span class="path-param">:id</span>/stats</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">campaign.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns delivery, open, and click counters for a sent campaign.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 10. NOTIFICATIONS ══════ -->
+        <div class="api-section" id="notifications">
+            <div class="section-header">
+                <span class="section-num">§10</span>
+                <h2 class="section-title">Notifications</h2>
+            </div>
+            <p class="section-desc">In-app admin notifications. REST for initial load + count; live updates via Socket.IO <code>/notifications</code> namespace.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /admin/notifications read type page totalUnread bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/notifications</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns paginated notifications with the total unread count for the badge.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">read=false</span>
+                            <span class="param-tag optional">type=lead</span>
+                            <span class="param-tag optional">page=1</span>
+                        </div>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"items"</span>: [...], <span class="k">"totalUnread"</span>: <span class="n">5</span>, <span class="k">"total"</span>: <span class="n">42</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /admin/notifications id read mark bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/admin/notifications/<span class="path-param">:id</span>/read</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Marks a single notification as read.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /admin/notifications read-all mark all bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/admin/notifications/read-all</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Marks all of the current user's notifications as read at once.</p></div></div>
+            </div>
+        </div>
+
+        <!-- ══════ 11. ANALYTICS ══════ -->
+        <div class="api-section" id="analytics">
+            <div class="section-header">
+                <span class="section-num">§11</span>
+                <h2 class="section-title">Analytics</h2>
+            </div>
+            <p class="section-desc">Lightweight first-party analytics. Public tracking pixel + admin read endpoints. No third-party dependency.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="POST /track/event pageview event path referrer utm public rate limited">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/track/event</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Client-side tracking pixel. Sets a <code>kra_vid</code> cookie (1 year) as a visitor ID if absent. Rate-limited.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"kind"</span>: <span class="s">"pageview"</span>, <span class="k">"path"</span>: <span class="s">"/blog/mern-stack"</span>,
+  <span class="k">"referrer"</span>: <span class="s">"https://google.com"</span>,
+  <span class="k">"utm"</span>: { <span class="k">"source"</span>: <span class="s">"twitter"</span>, <span class="k">"campaign"</span>: <span class="s">"q2"</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/analytics/pageviews from to path granularity hour day week bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/analytics/pageviews</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">analytics.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">from=2026-01-01</span>
+                            <span class="param-tag optional">to=2026-06-30</span>
+                            <span class="param-tag optional">path=/blog</span>
+                            <span class="param-tag optional">granularity=day</span>
+                        </div>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"series"</span>: [{ <span class="k">"ts"</span>: <span class="s">"2026-06-01T00:00:00Z"</span>, <span class="k">"count"</span>: <span class="n">342</span> }] } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/analytics/summary total today changePct byDay bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/analytics/summary</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">analytics.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns the KPI summary used on the <code>/dashboard</code> home page.</p>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"total"</span>: <span class="n">18421</span>, <span class="k">"today"</span>: <span class="n">312</span>, <span class="k">"changePct"</span>: <span class="n">+12.3</span>, <span class="k">"byDay"</span>: [...] }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 12. AUDIT ══════ -->
+        <div class="api-section" id="audit">
+            <div class="section-header">
+                <span class="section-num">§12</span>
+                <h2 class="section-title">Audit Logs</h2>
+            </div>
+            <p class="section-desc">Immutable, HMAC-chained audit trail. Every state-changing admin action is recorded. Read-only at the API level — no write or delete endpoints exist, even for super-admins.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /admin/audit actor action target targetKind from to page bearer audit.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/audit</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">audit.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Paginated audit log with filtering. Prefix match on <code>action</code> (e.g. <code>post.*</code> returns all post actions). Each row includes <code>hmac</code> and <code>prevHash</code> for chain verification.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">actor=userId</span>
+                            <span class="param-tag optional">action=post.*</span>
+                            <span class="param-tag optional">target=docId</span>
+                            <span class="param-tag optional">targetKind=Post</span>
+                            <span class="param-tag optional">from=2026-01-01</span>
+                            <span class="param-tag optional">to=2026-06-30</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">sort=-createdAt</span>
+                        </div>
+                        <div class="ep-label">Response item shape</div>
+                        <pre>{ <span class="k">"action"</span>: <span class="s">"post.publish"</span>, <span class="k">"actor"</span>: { <span class="k">"id"</span>: <span class="s">"u-001"</span>, <span class="k">"name"</span>: <span class="s">"Aarav"</span> },
+  <span class="k">"targetKind"</span>: <span class="s">"Post"</span>, <span class="k">"target"</span>: <span class="s">"post-id"</span>,
+  <span class="k">"meta"</span>: { <span class="k">"fromStatus"</span>: <span class="s">"draft"</span>, <span class="k">"toStatus"</span>: <span class="s">"published"</span> },
+  <span class="k">"hmac"</span>: <span class="s">"sha256:..."</span>, <span class="k">"prevHash"</span>: <span class="s">"sha256:..."</span>, <span class="k">"createdAt"</span>: <span class="s">"..."</span> }</pre>
+                        <div class="note">Rows are never writable. The DB user has only <code>insert</code>, <code>find</code>, <code>count</code> on the <code>auditlogs</code> collection.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/audit id single bearer audit.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/audit/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">audit.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Fetch a single audit log row with full HMAC chain metadata.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 13. SETTINGS ══════ -->
+        <div class="api-section" id="settings">
+            <div class="section-header">
+                <span class="section-num">§13</span>
+                <h2 class="section-title">Settings</h2>
+            </div>
+            <p class="section-desc">Grouped key/value settings. Public slice exposes analytics-enabled flag and social links. Admin read/write accesses all groups.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /settings/public analytics socials public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/settings/public</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Returns the public-safe settings slice: analytics enabled flag, social links, and other front-end config.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/settings all groups bearer settings.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/settings</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">settings.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Returns all settings groups in one response.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /admin/settings group partial merge bearer settings.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/admin/settings</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">settings.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Partial merge per group. Only the keys provided are updated.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"general"</span>: { <span class="k">"siteName"</span>: <span class="s">"Kraviona"</span>, <span class="k">"supportEmail"</span>: <span class="s">"hi@kraviona.com"</span> } }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /admin/settings key value single bearer settings.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/admin/settings/<span class="path-param">:key</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">settings.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Updates a single setting by key.</p>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"value"</span>: <span class="s">"dark"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 14. SEO ══════ -->
+        <div class="api-section" id="seo">
+            <div class="section-header">
+                <span class="section-num">§14</span>
+                <h2 class="section-title">SEO</h2>
+            </div>
+            <p class="section-desc">Global SEO settings, sitemap and robots.txt management, and per-page SEO audit scoring.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /v1/public/seo head meta tags public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/seo</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Returns merged SEO settings used by the public site to render <code>&lt;head&gt;</code> tags (defaultTitle, titleTemplate, defaultOgImage, etc.).</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /admin/seo update robotsPolicy noindexPages sitemap rebuild bearer seo.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/admin/seo</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">seo.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Updates global SEO settings. Automatically triggers <code>sitemap.rebuild</code> job on save.</p>
+                        <div class="ep-label">Request Body (partial)</div>
+                        <pre>{ <span class="k">"robotsPolicy"</span>: <span class="s">"index_follow"</span>, <span class="k">"noindexPages"</span>: [<span class="s">"/thank-you"</span>], <span class="k">"defaultOgImage"</span>: <span class="s">"https://cdn..."</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /admin/seo sitemap rebuild enqueue bearer seo.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/admin/seo/sitemap/rebuild</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">seo.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Manually enqueues a sitemap rebuild BullMQ job. CDN cache for <code>/sitemap.xml</code> is invalidated on completion.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/seo audit path on-page title meta canonical schema bearer seo.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/seo/audit</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">seo.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns on-page SEO audit for a specific path: title length, meta description length, canonical URL, schema.org presence, and image alt coverage.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params"><span class="param-tag">path=/blog/mern-stack</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /sitemap.xml public CDN cached">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/sitemap.xml</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Cached at the CDN. Invalidated when a sitemap rebuild job completes.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="GET /robots.txt public robotsPolicy noindexPages">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/robots.txt</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Generated dynamically from <code>SeoSettings.robotsPolicy</code> and <code>noindexPages</code>. Cached at edge.</p></div></div>
+            </div>
+        </div>
+
+        <!-- ══════ 15. CONTENT DECAY ══════ -->
+        <div class="api-section" id="content-decay">
+            <div class="section-header">
+                <span class="section-num">§15</span>
+                <h2 class="section-title">Content Decay</h2>
+            </div>
+            <p class="section-desc">Monitors content freshness and flags stale pages for review. Scores are computed nightly by a BullMQ worker.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /admin/content-decay collection minScore maxScore stale bearer contentDecay.read">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/content-decay</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">contentDecay.read</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns a list of stale content items with their decay scores (0–100, lower = more stale).</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">collection=posts</span>
+                            <span class="param-tag optional">minScore=0</span>
+                            <span class="param-tag optional">maxScore=40</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /admin/content-decay rules update bearer contentDecay.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/admin/content-decay/rules</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">contentDecay.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Updates decay rules (weights for age, traffic drop, link rot, etc.).</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="POST /admin/content-decay recompute one-off job bearer contentDecay.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/admin/content-decay/recompute</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">contentDecay.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Enqueues a one-off BullMQ recompute job, bypassing the nightly schedule.</p></div></div>
+            </div>
+        </div>
+
+        <!-- ══════ 16. TECH STACK ══════ -->
+        <div class="api-section" id="tech-stack">
+            <div class="section-header">
+                <span class="section-num">§16</span>
+                <h2 class="section-title">Tech Stack</h2>
+            </div>
+            <p class="section-desc">Technologies and tools to showcase in the public site. Categorized and orderable.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /v1/public/tech-stack category active public">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/v1/public/tech-stack</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">category=frontend</span>
+                            <span class="param-tag optional">active=true</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="POST /v1/tech-stack create bearer techStack.create">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/v1/tech-stack</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">techStack.create</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Adds a new technology entry.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="PUT /v1/tech-stack id update bearer techStack.update">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method put">PUT</span>
+                    <span class="ep-path">/v1/tech-stack/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">techStack.update</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Updates a tech stack entry.</p></div></div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /v1/tech-stack id bearer techStack.delete">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/v1/tech-stack/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">techStack.delete</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body"><div class="ep-body-inner"><p class="ep-desc">Deletes a tech stack entry.</p></div></div>
+            </div>
+        </div>
+
+        <!-- ══════ 17. DASHBOARD ══════ -->
+        <div class="api-section" id="dashboard">
+            <div class="section-header">
+                <span class="section-num">§17</span>
+                <h2 class="section-title">Dashboard (Composite)</h2>
+            </div>
+            <p class="section-desc">Convenience aggregation endpoints that bundle multiple data sources into one call, preventing the dashboard from making 10 parallel requests on load.</p>
+            <div class="section-divider"></div>
+
+            <div class="endpoint" data-search="GET /admin/dashboard/summary kpis leads posts audit notifications bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/dashboard/summary</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns everything the <code>/dashboard</code> home page renders: KPIs, recent leads, recent posts, recent audit rows, and unread notification count — all in one response.</p>
+                        <div class="ep-label">Response <code>200</code></div>
+                        <pre>{ <span class="k">"kpis"</span>: { <span class="k">"pageviews"</span>: <span class="n">18421</span>, <span class="k">"leads"</span>: <span class="n">247</span>, <span class="k">"posts"</span>: <span class="n">68</span> },
+  <span class="k">"recentLeads"</span>: [...], <span class="k">"recentPosts"</span>: [...],
+  <span class="k">"recentAudit"</span>: [...], <span class="k">"notifications"</span>: { <span class="k">"unread"</span>: <span class="n">3</span> } }</pre>
+                        <div class="note">Pure read projection. Never write through these endpoints.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /admin/dashboard/activity limit recent bearer">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/admin/dashboard/activity</span>
+                    <div class="ep-badges"><span class="badge bearer">Bearer</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Returns a recent activity feed across all modules (posts published, leads received, settings changed, etc.).</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params"><span class="param-tag optional">limit=20</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 18. ERRORS ══════ -->
+        <div class="api-section" id="errors">
+            <div class="section-header">
+                <span class="section-num">§18</span>
+                <h2 class="section-title">Error Reference</h2>
+            </div>
+            <p class="section-desc">All errors share the same envelope. The <code>code</code> field is machine-readable and stable across versions. The <code>message</code> is human-readable. <code>errors[]</code> carries per-field validation failures.</p>
+            <div class="section-divider"></div>
+
+            <div class="ep-label" style="margin-bottom:12px">Error Envelope</div>
+            <pre>{ <span class="k">"success"</span>: <span class="n">false</span>, <span class="k">"data"</span>: <span class="n">null</span>, <span class="k">"message"</span>: <span class="s">"Validation failed"</span>,
+  <span class="k">"code"</span>: <span class="s">"validation_failed"</span>, <span class="k">"requestId"</span>: <span class="s">"01HX0Q4Z3E3RD6P5SJ6B8B3Q7V"</span>,
+  <span class="k">"errors"</span>: [{ <span class="k">"path"</span>: <span class="s">"email"</span>, <span class="k">"message"</span>: <span class="s">"Invalid email"</span> }] }</pre>
+
+            <table class="err-table">
+                <thead>
+                    <tr>
+                        <th>HTTP</th>
+                        <th>code</th>
+                        <th>When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="status-code s2xx">200</span></td><td><code>—</code></td><td>OK</td></tr>
+                    <tr><td><span class="status-code s2xx">201</span></td><td><code>—</code></td><td>Created — POST that returned a new resource</td></tr>
+                    <tr><td><span class="status-code s2xx">204</span></td><td><code>—</code></td><td>No content — empty DELETE responses</td></tr>
+                    <tr><td><span class="status-code s4xx">400</span></td><td><code>validation_failed</code></td><td>Zod schema failed — <code>errors[]</code> has field paths</td></tr>
+                    <tr><td><span class="status-code s4xx">400</span></td><td><code>bad_json</code></td><td>Request body is not valid JSON</td></tr>
+                    <tr><td><span class="status-code s4xx">401</span></td><td><code>unauthorized</code></td><td>No token, expired token, or invalid RS256 signature</td></tr>
+                    <tr><td><span class="status-code s4xx">401</span></td><td><code>token_revoked</code></td><td>Refresh token family was killed (theft detection)</td></tr>
+                    <tr><td><span class="status-code s4xx">403</span></td><td><code>forbidden</code></td><td>Authenticated but missing the required permission</td></tr>
+                    <tr><td><span class="status-code s4xx">403</span></td><td><code>account_blocked</code></td><td>User's <code>isBlocked=true</code></td></tr>
+                    <tr><td><span class="status-code s4xx">403</span></td><td><code>csrf_failed</code></td><td>Missing or mismatched <code>X-CSRF-Token</code> header</td></tr>
+                    <tr><td><span class="status-code s4xx">404</span></td><td><code>not_found</code></td><td>Resource doesn't exist</td></tr>
+                    <tr><td><span class="status-code s4xx">409</span></td><td><code>conflict</code></td><td>Duplicate slug or unique index violation</td></tr>
+                    <tr><td><span class="status-code s4xx">409</span></td><td><code>version_mismatch</code></td><td>Optimistic concurrency — <code>If-Match</code> header didn't match</td></tr>
+                    <tr><td><span class="status-code s4xx">410</span></td><td><code>gone</code></td><td>Soft-deleted resource (treat as gone for public)</td></tr>
+                    <tr><td><span class="status-code s4xx">413</span></td><td><code>payload_too_large</code></td><td>Body &gt; 1 MB, or upload exceeds size limit</td></tr>
+                    <tr><td><span class="status-code s4xx">415</span></td><td><code>unsupported_media_type</code></td><td>Wrong <code>Content-Type</code> for upload</td></tr>
+                    <tr><td><span class="status-code s4xx">422</span></td><td><code>unprocessable_entity</code></td><td>Semantic check failed (campaign in the past, post without category)</td></tr>
+                    <tr><td><span class="status-code s4xx">429</span></td><td><code>rate_limited</code></td><td>Per-IP or per-user rate limit hit. <code>meta.retryAfter</code> in seconds</td></tr>
+                    <tr><td><span class="status-code s4xx">429</span></td><td><code>otp_locked</code></td><td>Too many OTP attempts — locked for 15 min</td></tr>
+                    <tr><td><span class="status-code s5xx">500</span></td><td><code>internal_error</code></td><td>Unhandled — logged with full stack, never returned to client</td></tr>
+                    <tr><td><span class="status-code s5xx">502</span></td><td><code>upstream_error</code></td><td>S3 / SMTP / third-party call failed</td></tr>
+                    <tr><td><span class="status-code s5xx">503</span></td><td><code>service_unavailable</code></td><td>DB or Redis is down</td></tr>
+                    <tr><td><span class="status-code s5xx">504</span></td><td><code>upstream_timeout</code></td><td>Downstream service timed out</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div><!-- /content -->
+</main><!-- /main -->
+
+<script>
+    // ─── Accordion toggle ───────────────────────
+    function toggle(trigger) {
+        const ep = trigger.parentElement;
+        const isOpen = ep.classList.contains('open');
+        // Close all others
+        document.querySelectorAll('.endpoint.open').forEach(e => {
+            if (e !== ep) e.classList.remove('open');
+        });
+        ep.classList.toggle('open', !isOpen);
+    }
+
+    // ─── Search / filter ────────────────────────
+    function filterEndpoints(q) {
+        const term = q.toLowerCase().trim();
+        document.querySelectorAll('.endpoint').forEach(ep => {
+            const text = (ep.dataset.search || '') + ep.querySelector('.ep-path').textContent;
+            ep.style.display = !term || text.toLowerCase().includes(term) ? '' : 'none';
+        });
+    }
+
+    // ─── Active nav highlight ────────────────────
+    const sections = document.querySelectorAll('.api-section');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navItems.forEach(n => n.classList.remove('active'));
+                const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-30% 0px -65% 0px', threshold: 0 });
+
+    sections.forEach(s => observer.observe(s));
+
+    // Also observe the #users subsection
+    const usersEl = document.getElementById('users');
+    if (usersEl) {
+        new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                navItems.forEach(n => n.classList.remove('active'));
+                const active = document.querySelector('.nav-item[href="#users"]');
+                if (active) active.classList.add('active');
+            }
+        }, { rootMargin: '-30% 0px -65% 0px', threshold: 0 }).observe(usersEl);
+    }
+</script>
+</body>
+</html>
+
+

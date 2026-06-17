@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kraviona Backend Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #f8fafc;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+        }
+
+        .card h3 {
+            color: #38bdf8;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card p {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        .docs-section {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.2);
+        }
+
+        .docs-section h2 {
+            color: #f8fafc;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .docs-section p {
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #cbd5e1;
+            margin-left: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+            border-color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Kraviona Backend System</h1>
+            <p>Robust, schema-first, and highly scalable Node.js architecture powering the Kraviona platform.</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>🚀 Core Tech Stack</h3>
+                <p>Built on <strong>Node.js (v20 LTS)</strong> and <strong>TypeScript</strong>. Uses Fastify / Express for a fast, schema-first API approach with Zod for strict validation.</p>
+            </div>
+
+            <div class="card">
+                <h3>🗄️ Database & ORM</h3>
+                <p>Hybrid architecture utilizing <strong>PostgreSQL</strong> (via Prisma ORM) for relational data and <strong>MongoDB</strong> (via Mongoose) for flexible content modules.</p>
+            </div>
+
+            <div class="card">
+                <h3>🔒 Auth & Security</h3>
+                <p>Secured with short-lived <strong>JWT Access Tokens</strong> (15 mins) and <strong>HTTP-Only Refresh Cookies</strong>. Features Password + OTP login and strict Role-Based Access Control (RBAC).</p>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Caching & Background Jobs</h3>
+                <p><strong>Redis</strong> handles session management, rate-limiting, and high-speed caching. <strong>BullMQ</strong> manages heavy background tasks like emails, sitemaps, and image processing.</p>
+            </div>
+
+            <div class="card">
+                <h3>📡 Real-time Updates</h3>
+                <p><strong>Socket.IO</strong> with Redis adapter streams live push notifications, real-time audit logs, and immediate lead updates directly to the Admin Panel.</p>
+            </div>
+
+            <div class="card">
+                <h3>☁️ Media & Infrastructure</h3>
+                <p>Integrates with <strong>S3-compatible storage</strong> (AWS S3, Cloudflare R2) for media uploads. Monitored via Pino JSON logs and Prometheus metrics.</p>
+            </div>
+        </div>
+
+        <div class="docs-section">
+            <h2>Explore the API</h2>
+            <p>Access the complete REST API documentation, test public GET routes, and view endpoint contracts.</p>
+            <a href="/api-docs" class="btn">📖 View Full API Docs</a>
+            <a href="/v1/public/site-config" class="btn btn-secondary" target="_blank">Test Public Config API</a>
+        </div>
+    </div>
+
+</body>
+</html>
