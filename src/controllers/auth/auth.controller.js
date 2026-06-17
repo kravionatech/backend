@@ -313,3 +313,23 @@ res.cookie("refreshToken", token.refreshToken, {
 
 // Verify OTP
   
+// auto generate access token after 15 minus
+
+// get me
+export const getMe = async (req, res) => {
+try {
+  const user = req.user;
+  if(!user) return res.status(401).json({message:"Unauthorized",success:false})
+console.log("user",user)
+    // is User exits
+    const isUser = await Auth.findById(user.id).select("-password");
+    if(!isUser) return res.status(404).json({message:"User not found",success:false})
+return res.status(200).json({message:"User found",success:true,data:isUser})
+    
+
+  
+} catch (error) {
+  return res.status(500).json({message:error.message,success:false})
+
+}
+} 
