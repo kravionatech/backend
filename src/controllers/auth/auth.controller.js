@@ -272,14 +272,14 @@ export const loginAccountWithPassword = async (req, res) => {
   httpOnly: true,
   secure: config.NODE_ENV === "production",
   sameSite: config.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 15 * 60 * 1000,
+  maxAge: 60 * 60 * 1000*24,
 });
 
 res.cookie("refreshToken", token.refreshToken, {
   httpOnly: true,
   secure: config.NODE_ENV === "production",
   sameSite: config.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: 60 * 60 * 1000*24,
 });
 
     // ==============================

@@ -1,5 +1,6 @@
 import { Auth } from "../../models/auth/auth.models.js";
 import { CategoryModel } from "../../models/blog/category.model.js";
+import slugify from "slugify";
 
 export const createCategory = async (req, res) => {
   try {
@@ -28,7 +29,7 @@ export const createCategory = async (req, res) => {
     const category = new CategoryModel({
       name: name.toLowerCase().trim(),
       description: description.trim(),
-      slug: slug.toLowerCase().trim(),
+      slug:slugify(slug.toLowerCase().trim(), { lower: true, strict: true }),
       status: status || "published",
       metaTitle: metaTitle || "",
       metaDescription: metaDescription || "",
@@ -78,33 +79,36 @@ export const getAllCategories = async (req, res) => {
     if (!user) return res.status(401).json({ message: "Unauthorized", success: false });
 
     const { status, page = 1, limit = 10, search } = req.query;
-    const query = {};
+    const query = {
+      userID: user.id,
+    };
+    if (user.role === "user") {
+      return res.status(403).json({ message: "Forbidden (Not An Admin)", success: false });
+    } else {
+      if (user.role === "admin" || user.role === "super_admin" || user.role === "editor") {
+        if (status) query.status = status;
+        if (search) query.name = { $regex: search, $options: "i" };
+        const categories = await CategoryModel.find(query)
+          .select("-__v")
+          .skip((page - 1) * limit)
+          .limit(parseInt(limit))
+          .sort({ createdAt: -1 });
 
-    if (status) query.status = status;
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { slug: { $regex: search, $options: "i" } },
-      ];
+        const total = await CategoryModel.countDocuments(query);
+        return res.status(200).json({
+          message: categories.length ? "Categories found" : "No categories found",
+          success: true,
+          data: categories,
+          pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(total / limit),
+          },
+        });
+      }
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
-    const [categories, total] = await Promise.all([
-      CategoryModel.find(query).select("-__v").sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
-      CategoryModel.countDocuments(query),
-    ]);
-
-    return res.status(200).json({
-      message: "Categories fetched successfully",
-      success: true,
-      data: categories,
-      pagination: {
-        total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit)),
-      },
-    });
   } catch (error) {
     return res.status(500).json({ message: error.message, success: false });
   }
