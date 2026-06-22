@@ -6,6 +6,7 @@ import Router from '../routes/router.routes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+import { v2 as cloudinary } from 'cloudinary'
 
 const app = express();
 
@@ -22,7 +23,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
-// home page send route
+app.use(express.urlencoded({extended:true}))
+// home page send routea
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public/index.html'));
 });
@@ -36,6 +38,9 @@ app.get('/api-docs', (req, res) => {
 app.get('/health', healthRouter);
 
 // DB connection route
+
+// Cloudinary Config
+
 
 
 // All routing

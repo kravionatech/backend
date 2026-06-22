@@ -8,8 +8,8 @@ export const tokenGenerate = ({
   isActive,
   accessSecret,
   refreshSecret,
-  accessExpiresIn = "15m",
-  refreshExpiresIn = "7d",
+  accessExpiresIn = "1d",
+  refreshExpiresIn = "1d",
 }) => {
   const payload = {
     id,

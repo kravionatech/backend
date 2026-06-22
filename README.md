@@ -322,3 +322,309 @@ All error responses follow this structure:
   "updatedAt": "2024-01-01T00:00:00.000Z"
 }
 ```
+
+# Media API Documentation
+
+Base URL
+
+```
+http://localhost:5000/api/v1
+```
+
+Authentication
+
+> All Media APIs require a valid JWT Access Token.
+
+Header
+
+```http
+Authorization: Bearer <access_token>
+```
+
+---
+
+# 1. Upload Media
+
+**Endpoint**
+
+```http
+POST /media/upload
+```
+
+**Content-Type**
+
+```http
+multipart/form-data
+```
+
+### Request Body
+
+| Key | Type | Required | Description |
+|------|------|----------|-------------|
+| file | File | Yes | Single or Multiple Media Files |
+
+Example (Postman)
+
+```text
+Body
+form-data
+
+file : image1.jpg
+file : image2.png
+file : video.mp4
+```
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "message": "Media uploaded successfully.",
+  "count": 3,
+  "data": [
+    {
+      "_id": "686f0d9d1c82c2a1ef98a213",
+      "fileName": "file-175000000.jpg",
+      "originalName": "photo.jpg",
+      "fileUrl": "/uploads/images/file-175000000.jpg",
+      "mimeType": "image/jpeg",
+      "mediaType": "image",
+      "fileSize": 154345
+    }
+  ]
+}
+```
+
+---
+
+# 2. Get All Media
+
+Returns logged-in user's media.
+
+**Endpoint**
+
+```http
+GET /media?page=1&limit=10
+```
+
+### Query Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| page | 1 | Current Page |
+| limit | 10 | Records Per Page |
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "data": [],
+  "pagination": {
+    "totalItems": 35,
+    "currentPage": 1,
+    "perPage": 10,
+    "totalPages": 4,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+---
+
+# 3. Get Single Media
+
+**Endpoint**
+
+```http
+GET /media/:id
+```
+
+Example
+
+```http
+GET /media/686f0d9d1c82c2a1ef98a213
+```
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "686f0d9d1c82c2a1ef98a213",
+    "fileName": "file-175000000.jpg",
+    "originalName": "photo.jpg",
+    "fileUrl": "/uploads/images/file-175000000.jpg",
+    "mimeType": "image/jpeg",
+    "mediaType": "image",
+    "fileSize": 154345
+  }
+}
+```
+
+---
+
+# 4. Update Media
+
+Update media metadata.
+
+**Endpoint**
+
+```http
+PUT /media/:id
+```
+
+### Request Body
+
+```json
+{
+  "altText": "Beautiful Dubai Skyline"
+}
+```
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "message": "Media updated successfully."
+}
+```
+
+---
+
+# 5. Delete Media
+
+Deletes media file and database record.
+
+**Endpoint**
+
+```http
+DELETE /media/:id
+```
+
+Example
+
+```http
+DELETE /media/686f0d9d1c82c2a1ef98a213
+```
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "message": "Media deleted successfully."
+}
+```
+
+---
+
+# Media Types
+
+| MIME Type | Stored As |
+|-----------|-----------|
+| image/jpeg | image |
+| image/png | image |
+| image/webp | image |
+| image/gif | image |
+| video/mp4 | video |
+| video/webm | video |
+| video/x-matroska | video |
+| audio/mpeg | audio |
+| application/pdf | document |
+| application/msword | document |
+| application/vnd.openxmlformats-officedocument.wordprocessingml.document | document |
+| application/vnd.ms-excel | document |
+| application/vnd.openxmlformats-officedocument.spreadsheetml.sheet | document |
+
+---
+
+# Error Response
+
+```json
+{
+  "success": false,
+  "message": "Choose at least one media file."
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Media not found."
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized."
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Internal Server Error."
+}
+```
+
+---
+
+# Folder Structure
+
+```
+public/
+└── uploads/
+    ├── images/
+    ├── videos/
+    ├── audio/
+    ├── documents/
+    └── others/
+```
+
+---
+
+# Supported Uploads
+
+- Images
+  - JPG
+  - PNG
+  - WEBP
+  - GIF
+
+- Videos
+  - MP4
+  - WEBM
+  - MKV
+  - MOV
+
+- Audio
+  - MP3
+  - WAV
+
+- Documents
+  - PDF
+  - DOC
+  - DOCX
+  - XLS
+  - XLSX
+  - PPT
+  - PPTX
+  - TXT
+
+---
+
+# Status Codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success |
+| 201 | Created |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 404 | Not Found |
+| 500 | Internal Server Error |

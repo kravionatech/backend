@@ -333,3 +333,28 @@ return res.status(200).json({message:"User found",success:true,data:isUser})
 
 }
 } 
+
+
+export const logoutUser = async (req, res) => {
+    try {
+        // IMPORTANT: yeh exact same options hone chahiye jo login/signin ke
+        // waqt cookie set karte time diye gaye the — naam, path, domain match
+        // hona zaroori hai, warna browser cookie clear nahi karega.
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+        };
+
+        res.clearCookie("accessToken", cookieOptions);
+        res.clearCookie("refreshToken", cookieOptions);
+
+        return res.status(200).json({
+            message: "Logged out successfully",
+            success: true,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message, success: false });
+    }
+};
