@@ -13,7 +13,7 @@ const startServer = async () => {
   console.log("\n🚀 APPLICATION STARTED\n");
 
   console.table({
-    App: "Wande Nova API",
+    App: "Kraviona API",
     Environment: process.env.NODE_ENV || "development",
     Port: config.PORT,
     URL: `http://localhost:${config.PORT}`,

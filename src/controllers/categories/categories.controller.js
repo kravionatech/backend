@@ -6,7 +6,9 @@ export const createCategory = async (req, res) => {
   try {
     const user = req.user;
     if (!user) return res.status(401).json({ message: "Unauthorized", success: false });
-
+if(user.role ==="user") return res.status(403).json({
+  message:"User Not authorized"
+})
     const isExist = await Auth.findById(user.id);
     if (!isExist) return res.status(404).json({ message: "User not found", success: false });
 
@@ -93,6 +95,9 @@ export const getAllCategories = async (req, res) => {
           .skip((page - 1) * limit)
           .limit(parseInt(limit))
           .sort({ createdAt: -1 });
+        
+        console.log(categories,"cate");
+        
 
         const total = await CategoryModel.countDocuments(query);
         return res.status(200).json({

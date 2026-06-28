@@ -9,6 +9,9 @@ export const uploadMedia = async (req, res) => {
     try {
         const user = req.user;
         const files = req.files;
+        if (user.role === "user") return res.status(403).json({
+            message:"User not authorized"
+        })
 
         if (!files || files.length === 0) {
             return res.status(400).json({
@@ -110,7 +113,7 @@ export const getMyMedias = async (req, res) => {
         const user = req.user;
 
         const page = Math.max(parseInt(req.query.page) || 1, 1);
-        const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+        const limit = Math.max(parseInt(req.query.limit) || 25, 1);
         const skip = (page - 1) * limit;
 
         const filter = {
