@@ -285,7 +285,7 @@ export const publicPosts = async (req, res) => {
         )
         // FIX: there was no sort at all before — results came back in
         // whatever order Mongo happened to store them in.
-        .sort({ publishedAt: -1 })
+        .sort({ publishedAt: -1, createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),
@@ -341,7 +341,7 @@ export const privatePosts = async (req, res) => {
         .select(
           "title slug excerpt author category reactions views featuredImage contentSourceType commentCount createdAt updatedAt publishedAt status"
         )
-        .sort({ updatedAt: -1 })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),

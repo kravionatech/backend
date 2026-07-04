@@ -63,7 +63,9 @@ if(user.role ==="user") return res.status(403).json({
 // Public — published only
 export const getCategories = async (req, res) => {
   try {
-    const categories = await CategoryModel.find({ status: "published" }).select("-__v");
+    const categories = await CategoryModel.find({ status: "published" })
+      .select("-__v")
+      .sort({ createdAt: -1 });
     return res.status(200).json({
       message: categories.length ? "Categories found" : "No categories found",
       success: true,
@@ -92,9 +94,9 @@ export const getAllCategories = async (req, res) => {
         if (search) query.name = { $regex: search, $options: "i" };
         const categories = await CategoryModel.find(query)
           .select("-__v")
+          .sort({ createdAt: -1 })
           .skip((page - 1) * limit)
-          .limit(parseInt(limit))
-          .sort({ createdAt: -1 });
+          .limit(parseInt(limit));
         
         console.log(categories,"cate");
         

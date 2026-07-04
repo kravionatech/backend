@@ -154,3 +154,52 @@ export const getMyMedias = async (req, res) => {
         });
     }
 };
+
+export const deleteMedia = async (req, res) => {
+    try {
+        const user = req.user;
+        const media = await mediaModel.findById(req.params.id);
+
+        if (!media || media.isDeleted) {
+            return res.status(404).json({
+                success: false,
+                message: "Media not found.",
+            });
+        }
+
+        const isOwner = String(media.userID) === String(user.id || user._id);
+        const canManageAll = user.role === "admin" || user.role === "super_admin";
+
+        if (!isOwner && !canManageAll) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not allowed to delete this media.",
+            });
+        }
+
+        if (media.publicId) {
+            try {
+                await cloudinary.uploader.destroy(media.publicId, {
+                    resource_type: media.mediaType === "video" ? "video" : "image",
+                });
+            } catch (cloudinaryError) {
+                console.error("Cloudinary delete failed:", cloudinaryError.message);
+            }
+        }
+
+        media.isDeleted = true;
+        await media.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Media deleted successfully.",
+            data: media,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            data: null,
+        });
+    }
+};

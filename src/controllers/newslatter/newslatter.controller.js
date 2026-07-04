@@ -28,7 +28,7 @@ export const getAllSubscribers = async (req,res)=>{
         if(!user) return res.status(401).json({message:"Unauthorized",success:false})
         if(user.role !== "admin" && user.role !== "super_admin") return res.status(403).json({message:"Forbidden",success:false})
             // check subscriber are exits
-const isSubscriber = await newsLatterModel.find({})
+const isSubscriber = await newsLatterModel.find({}).sort({ createdAt: -1 })
 
 return res.status(200).json({message:"Subscriber fetched successfully",success:true,data:isSubscriber})
     } catch (error) {

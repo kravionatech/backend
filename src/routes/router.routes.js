@@ -3,7 +3,7 @@ import { createAccount, getMe, loginAccountWithPassword, logoutUser } from "../c
 import verifyToken from "../middleware/verifyToken.js";
 import { createCategory, deleteCategory, getAllCategories, getCategories, getCategoryByIdOrSlug, updateCategory } from "../controllers/categories/categories.controller.js";
 import { createPost, deletePost, privatePosts, privateViewPost, publicPosts, singleViewPost, updatePost } from "../controllers/post/post.controller.js";
-import { getMyMedias, uploadMedia } from "../controllers/media/media.contollers.js";
+import { deleteMedia, getMyMedias, uploadMedia } from "../controllers/media/media.contollers.js";
 import { upload } from "../middleware/upload.middleware.js";
 import { createNewsLatter, deleteSubscriber, getAllSubscribers } from "../controllers/newslatter/newslatter.controller.js";
 import { createMessage, deleteMessage, getAllMessages, getMessageById, updateMessage } from "../controllers/messages/message.controller.js";
@@ -58,6 +58,7 @@ Router.get('/private/post/:id', verifyToken, privateViewPost)
 // Media Folder
 Router.post('/media/upload',upload.array("file",10),verifyToken,uploadMedia)
 Router.get('/media/me',verifyToken,getMyMedias)
+Router.delete('/media/:id',verifyToken,deleteMedia)
 
 
 // subscriber
