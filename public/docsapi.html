@@ -1660,114 +1660,217 @@
                 <span class="section-num">§8</span>
                 <h2 class="section-title">Messages & Leads</h2>
             </div>
-            <p class="section-desc">Contact form submissions double as CRM leads. New submissions arrive via the public endpoint and flow through the lead pipeline via admin endpoints. Live updates via Socket.IO <code>/leads</code> namespace.</p>
+            <p class="section-desc">Current implemented contact and lead capture endpoints. Public create routes do not require login and do not return saved private data. Read, update, and delete routes require an authenticated <code>admin</code> or <code>super_admin</code>.</p>
             <div class="section-divider"></div>
 
-            <div class="endpoint" data-search="POST /client/send-message public contact form rate limited">
+            <div class="subsection-title">Contact Messages</div>
+
+            <div class="endpoint" data-search="POST /api/v1/messages public contact form firstName lastName email phone subject message">
                 <div class="ep-trigger" onclick="toggle(this)">
                     <span class="method post">POST</span>
-                    <span class="ep-path">/client/send-message</span>
+                    <span class="ep-path">/api/v1/messages</span>
                     <div class="ep-badges"><span class="badge public">Public</span></div>
                     <span class="ep-chevron">▼</span>
                 </div>
                 <div class="ep-body">
                     <div class="ep-body-inner">
-                        <p class="ep-desc">Public contact form endpoint. Creates a <code>Message</code> with <code>status="new"</code>. Highly rate-limited to prevent spam. Also available at <code>/v1/public/contact</code> (legacy alias).</p>
+                        <p class="ep-desc">Creates a normal website contact message. Use for the contact page form. No auth required. The public response intentionally does not echo submitted user data.</p>
                         <div class="ep-label">Request Body</div>
-                        <pre>{ <span class="k">"name"</span>: <span class="s">"John Doe"</span>, <span class="k">"email"</span>: <span class="s">"john@example.com"</span>,
-  <span class="k">"phone"</span>: <span class="s">"9876543210"</span>, <span class="k">"message"</span>: <span class="s">"Interested in MERN stack."</span> }</pre>
+                        <pre>{ <span class="k">"firstName"</span>: <span class="s">"User"</span>, <span class="k">"lastName"</span>: <span class="s">"Name"</span>,
+  <span class="k">"email"</span>: <span class="s">"user@example.com"</span>, <span class="k">"phone"</span>: <span class="s">"+919608553167"</span>,
+  <span class="k">"subject"</span>: <span class="s">"Project inquiry"</span>,
+  <span class="k">"message"</span>: <span class="s">"I want to discuss a MERN stack project."</span> }</pre>
                         <div class="ep-label">Response <code>201</code></div>
-                        <pre>{ <span class="k">"success"</span>: <span class="n">true</span>, <span class="k">"data"</span>: { <span class="k">"id"</span>: <span class="s">"msg-001"</span>, <span class="k">"status"</span>: <span class="s">"new"</span> } }</pre>
+                        <pre>{ <span class="k">"message"</span>: <span class="s">"Message created successfully"</span>, <span class="k">"success"</span>: <span class="n">true</span> }</pre>
                     </div>
                 </div>
             </div>
 
-            <div class="endpoint" data-search="GET /admin/messages status assignedTo source q list bearer lead.read">
+            <div class="endpoint" data-search="GET /api/v1/messages admin super_admin status search page limit list">
                 <div class="ep-trigger" onclick="toggle(this)">
                     <span class="method get">GET</span>
-                    <span class="ep-path">/admin/messages</span>
-                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.read</span></div>
+                    <span class="ep-path">/api/v1/messages</span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
                     <span class="ep-chevron">▼</span>
                 </div>
                 <div class="ep-body">
                     <div class="ep-body-inner">
+                        <p class="ep-desc">Lists stored contact messages. Requires logged-in admin or super admin.</p>
                         <div class="ep-label">Query Parameters</div>
                         <div class="ep-params">
-                            <span class="param-tag optional">status=new</span>
-                            <span class="param-tag optional">assignedTo=userId</span>
-                            <span class="param-tag optional">source=contact_form</span>
-                            <span class="param-tag optional">q=john</span>
-                            <span class="param-tag optional">from=2026-01-01</span>
-                            <span class="param-tag optional">to=2026-06-30</span>
+                            <span class="param-tag optional">status=unread</span>
+                            <span class="param-tag optional">search=user@example.com</span>
                             <span class="param-tag optional">page=1</span>
-                            <span class="param-tag optional">pageSize=20</span>
+                            <span class="param-tag optional">limit=10</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="endpoint" data-search="PATCH /admin/messages id partial update status bearer lead.update">
-                <div class="ep-trigger" onclick="toggle(this)">
-                    <span class="method patch">PATCH</span>
-                    <span class="ep-path">/admin/messages/<span class="path-param">:id</span></span>
-                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.update</span></div>
-                    <span class="ep-chevron">▼</span>
-                </div>
-                <div class="ep-body">
-                    <div class="ep-body-inner">
-                        <p class="ep-desc">Partial update for a message/lead. Typical use: update <code>status</code>, <code>service</code>, or pipeline stage.</p>
-                        <div class="ep-label">Request Body (example)</div>
-                        <pre>{ <span class="k">"status"</span>: <span class="s">"contacted"</span>, <span class="k">"service"</span>: <span class="s">"mern-stack"</span> }</pre>
-                    </div>
-                </div>
-            </div>
-
-            <div class="endpoint" data-search="PATCH /admin/messages id assign assignedTo bearer lead.assign">
-                <div class="ep-trigger" onclick="toggle(this)">
-                    <span class="method patch">PATCH</span>
-                    <span class="ep-path">/admin/messages/<span class="path-param">:id</span>/assign</span>
-                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.assign</span></div>
-                    <span class="ep-chevron">▼</span>
-                </div>
-                <div class="ep-body">
-                    <div class="ep-body-inner">
-                        <p class="ep-desc">Assigns or unassigns a lead to an admin user. Pass <code>null</code> to clear assignment.</p>
-                        <div class="ep-label">Request Body</div>
-                        <pre>{ <span class="k">"assignedTo"</span>: <span class="s">"u-001"</span> <span class="c">// or null</span> }</pre>
-                    </div>
-                </div>
-            </div>
-
-            <div class="endpoint" data-search="POST /admin/messages id note body bearer lead.note">
-                <div class="ep-trigger" onclick="toggle(this)">
-                    <span class="method post">POST</span>
-                    <span class="ep-path">/admin/messages/<span class="path-param">:id</span>/note</span>
-                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.note</span></div>
-                    <span class="ep-chevron">▼</span>
-                </div>
-                <div class="ep-body">
-                    <div class="ep-body-inner">
-                        <p class="ep-desc">Appends an internal note to a lead. Notes are visible only to admins.</p>
-                        <div class="ep-label">Request Body</div>
-                        <pre>{ <span class="k">"body"</span>: <span class="s">"Followed up via email. Interested in Phase 1 proposal."</span> }</pre>
-                    </div>
-                </div>
-            </div>
-
-            <div class="endpoint" data-search="GET /admin/leads/stats total new contacted qualified proposal closed bearer">
+            <div class="endpoint" data-search="GET /api/v1/messages id admin super_admin read single message">
                 <div class="ep-trigger" onclick="toggle(this)">
                     <span class="method get">GET</span>
-                    <span class="ep-path">/admin/leads/stats</span>
-                    <div class="ep-badges"><span class="badge bearer">Bearer</span><span class="badge perm">lead.read</span></div>
+                    <span class="ep-path">/api/v1/messages/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
                     <span class="ep-chevron">▼</span>
                 </div>
                 <div class="ep-body">
                     <div class="ep-body-inner">
-                        <p class="ep-desc">Returns a summary of the lead pipeline for the dashboard KPI cards.</p>
-                        <div class="ep-label">Response <code>200</code></div>
-                        <pre>{ <span class="k">"total"</span>: <span class="n">247</span>, <span class="k">"new"</span>: <span class="n">12</span>, <span class="k">"contacted"</span>: <span class="n">31</span>, <span class="k">"qualified"</span>: <span class="n">18</span>,
-  <span class="k">"proposal"</span>: <span class="n">7</span>, <span class="k">"closed_won"</span>: <span class="n">54</span>, <span class="k">"closed_lost"</span>: <span class="n">22</span>,
-  <span class="k">"thisMonth"</span>: <span class="n">19</span>, <span class="k">"chart"</span>: [{ <span class="k">"day"</span>: <span class="s">"2026-06-01"</span>, <span class="k">"count"</span>: <span class="n">3</span> }] }</pre>
+                        <p class="ep-desc">Fetches one contact message by Mongo id.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /api/v1/messages id admin super_admin update status read replied archived">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/api/v1/messages/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Partially updates a contact message. Common use: change <code>status</code>.</p>
+                        <div class="ep-label">Request Body (partial)</div>
+                        <pre>{ <span class="k">"status"</span>: <span class="s">"read"</span> }</pre>
+                        <div class="ep-label">Allowed Status</div>
+                        <div class="ep-params">
+                            <span class="param-tag">unread</span>
+                            <span class="param-tag">read</span>
+                            <span class="param-tag">replied</span>
+                            <span class="param-tag">archived</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /api/v1/messages id admin super_admin delete message">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/api/v1/messages/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Deletes a contact message. Requires logged-in admin or super admin.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection-title">Leads</div>
+
+            <div class="endpoint" data-search="POST /api/v1/leads public service popup lead name email phone subject message leadType page service budget company">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method post">POST</span>
+                    <span class="ep-path">/api/v1/leads</span>
+                    <div class="ep-badges"><span class="badge public">Public</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Creates a sales lead. Use this for service popup forms and service page lead capture. No auth required. The public response intentionally does not echo submitted user data.</p>
+                        <div class="ep-label">Required Fields</div>
+                        <div class="ep-params">
+                            <span class="param-tag">name</span>
+                            <span class="param-tag">email</span>
+                            <span class="param-tag">phone</span>
+                            <span class="param-tag">subject</span>
+                            <span class="param-tag">message</span>
+                        </div>
+                        <div class="ep-label">Request Body</div>
+                        <pre>{ <span class="k">"name"</span>: <span class="s">"User full name"</span>,
+  <span class="k">"email"</span>: <span class="s">"user@example.com"</span>,
+  <span class="k">"phone"</span>: <span class="s">"+919608553167"</span>,
+  <span class="k">"subject"</span>: <span class="s">"Lead Inquiry: MERN Stack Development"</span>,
+  <span class="k">"message"</span>: <span class="s">"Service: MERN Stack Development\nBudget: Need guidance\nCompany: Company Name\n\nUser requirement\n\nLead source: current page URL"</span>,
+  <span class="k">"leadType"</span>: <span class="s">"service-popup"</span>,
+  <span class="k">"page"</span>: <span class="s">"/services/mern-stack-development"</span>,
+  <span class="k">"service"</span>: <span class="s">"MERN Stack Development"</span>,
+  <span class="k">"budget"</span>: <span class="s">"Need guidance"</span>,
+  <span class="k">"company"</span>: <span class="s">"Company Name"</span> }</pre>
+                        <div class="ep-label">Response <code>201</code></div>
+                        <pre>{ <span class="k">"message"</span>: <span class="s">"Lead created successfully"</span>, <span class="k">"success"</span>: <span class="n">true</span> }</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /api/v1/leads admin super_admin list status source leadType service search page limit">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/api/v1/leads</span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Lists leads for the admin dashboard.</p>
+                        <div class="ep-label">Query Parameters</div>
+                        <div class="ep-params">
+                            <span class="param-tag optional">status=New</span>
+                            <span class="param-tag optional">source=Website</span>
+                            <span class="param-tag optional">leadType=service-popup</span>
+                            <span class="param-tag optional">service=MERN Stack Development</span>
+                            <span class="param-tag optional">search=user@example.com</span>
+                            <span class="param-tag optional">page=1</span>
+                            <span class="param-tag optional">limit=10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="GET /api/v1/leads id admin super_admin read single lead">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method get">GET</span>
+                    <span class="ep-path">/api/v1/leads/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Fetches one lead by Mongo id.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="PATCH /api/v1/leads id admin super_admin update status score notes dealValue">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method patch">PATCH</span>
+                    <span class="ep-path">/api/v1/leads/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Partially updates a lead. Common admin use: move pipeline status, add notes, score the lead, or update deal value.</p>
+                        <div class="ep-label">Request Body (partial)</div>
+                        <pre>{ <span class="k">"status"</span>: <span class="s">"Contacted"</span>,
+  <span class="k">"score"</span>: <span class="n">70</span>,
+  <span class="k">"notes"</span>: <span class="s">"Called once. Asked for proposal."</span>,
+  <span class="k">"dealValue"</span>: <span class="n">50000</span> }</pre>
+                        <div class="ep-label">Allowed Status</div>
+                        <div class="ep-params">
+                            <span class="param-tag">New</span>
+                            <span class="param-tag">Contacted</span>
+                            <span class="param-tag">Qualified</span>
+                            <span class="param-tag">Proposal</span>
+                            <span class="param-tag">Won</span>
+                            <span class="param-tag">Lost</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-search="DELETE /api/v1/leads id admin super_admin delete lead">
+                <div class="ep-trigger" onclick="toggle(this)">
+                    <span class="method delete">DELETE</span>
+                    <span class="ep-path">/api/v1/leads/<span class="path-param">:id</span></span>
+                    <div class="ep-badges"><span class="badge bearer">Cookie</span><span class="badge perm">admin/super_admin</span></div>
+                    <span class="ep-chevron">▼</span>
+                </div>
+                <div class="ep-body">
+                    <div class="ep-body-inner">
+                        <p class="ep-desc">Deletes a lead. Requires logged-in admin or super admin.</p>
                     </div>
                 </div>
             </div>
@@ -2471,5 +2574,4 @@
 </script>
 </body>
 </html>
-
 

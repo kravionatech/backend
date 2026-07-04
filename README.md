@@ -1,3 +1,12 @@
+# Kraviona Backend API
+
+Main API guide for current contact message and lead endpoints:
+
+- [API_GUIDE.md](./API_GUIDE.md)
+- Served browser docs: `/api-docs`
+
+---
+
 # Category API Guidelines
 
 **Base URL:** `/api/v1/blog`  

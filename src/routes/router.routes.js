@@ -6,6 +6,8 @@ import { createPost, deletePost, privatePosts, privateViewPost, publicPosts, sin
 import { getMyMedias, uploadMedia } from "../controllers/media/media.contollers.js";
 import { upload } from "../middleware/upload.middleware.js";
 import { createNewsLatter, deleteSubscriber, getAllSubscribers } from "../controllers/newslatter/newslatter.controller.js";
+import { createMessage, deleteMessage, getAllMessages, getMessageById, updateMessage } from "../controllers/messages/message.controller.js";
+import { createLead, deleteLead, getAllLeads, getLeadById, updateLead } from "../controllers/leads/lead.controller.js";
 
 const Router  = express.Router();
 
@@ -63,3 +65,19 @@ Router.get('/media/me',verifyToken,getMyMedias)
 Router.post('/newslatter',createNewsLatter)
 Router.get('/newslatter',verifyToken,getAllSubscribers)
 Router.delete('/newslatter/:id',verifyToken,deleteSubscriber)
+
+// messages
+
+Router.post('/messages',createMessage)
+Router.get('/messages',verifyToken,getAllMessages)
+Router.get('/messages/:id',verifyToken,getMessageById)
+Router.patch('/messages/:id',verifyToken,updateMessage)
+Router.delete('/messages/:id',verifyToken,deleteMessage)
+
+// leads
+
+Router.post('/leads',createLead)
+Router.get('/leads',verifyToken,getAllLeads)
+Router.get('/leads/:id',verifyToken,getLeadById)
+Router.patch('/leads/:id',verifyToken,updateLead)
+Router.delete('/leads/:id',verifyToken,deleteLead)

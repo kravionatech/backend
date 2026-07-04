@@ -53,6 +53,39 @@ const leadSchema = new Schema(
       type: String,
       trim: true,
     },
+    subject: {
+      type: String,
+      required: [true, "Subject is required"],
+      trim: true,
+      maxlength: [150, "Subject should be maximum 150 characters"],
+    },
+    message: {
+      type: String,
+      required: [true, "Message is required"],
+      trim: true,
+      maxlength: [3000, "Message should be maximum 3000 characters"],
+    },
+    leadType: {
+      type: String,
+      trim: true,
+      default: "service-popup",
+      enum: ["service-popup", "contact-form", "other"],
+    },
+    page: {
+      type: String,
+      trim: true,
+      maxlength: [300, "Page should be maximum 300 characters"],
+    },
+    service: {
+      type: String,
+      trim: true,
+      maxlength: [150, "Service should be maximum 150 characters"],
+    },
+    budget: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Budget should be maximum 100 characters"],
+    },
 
     /* ── Pipeline ── */
     status: {
