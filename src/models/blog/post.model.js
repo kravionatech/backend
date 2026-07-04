@@ -86,7 +86,7 @@ const postSchema = new mongoose.Schema(
     supportingTopicClusters: [{ type: String, trim: true }],
 
     // Folksonomy tags — distinct from SEO `keywords` below
-    tags: [{ type: String, trim: true, lowercase: true, index: true }],
+    tags: [{ type: String, trim: true, lowercase: true }],
 
     readingTimeMinutes: { type: Number, default: 1 },
     wordCount: { type: Number, default: 0 },

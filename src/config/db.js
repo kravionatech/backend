@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import config from "./config.js";
 
 console.log("Connecting to MongoDB...");
-console.log({config})
 
 const connectDB = async () => {
   try {
