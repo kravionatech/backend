@@ -10,6 +10,9 @@ import { createMessage, deleteMessage, getAllMessages, getMessageById, updateMes
 import { createLead, deleteLead, getAllLeads, getLeadById, updateLead } from "../controllers/leads/lead.controller.js";
 import { getDashboardAnalytics } from "../controllers/analytics/analytics.controller.js";
 import { createPostComment, getPostEngagement, reactToPost } from "../controllers/blog-engagement/blog-engagement.controller.js";
+import { deleteComment, getAllComments, updateComment } from "../controllers/comments/comments.controller.js";
+import { createTeamMember, deleteTeamMember, getAllTeamMembers, updateTeamMember } from "../controllers/team/team.controller.js";
+import { createUser, deleteUser, getAllUsers, updateUser } from "../controllers/users/users.controller.js";
 
 const Router  = express.Router();
 
@@ -23,6 +26,22 @@ Router.post('/auth/logout', verifyToken, logoutUser)
 
 // Analytics
 Router.get('/analytics/dashboard', verifyToken, getDashboardAnalytics)
+
+// Users & team
+Router.get('/users', verifyToken, getAllUsers)
+Router.post('/users', verifyToken, createUser)
+Router.patch('/users/:id', verifyToken, updateUser)
+Router.delete('/users/:id', verifyToken, deleteUser)
+
+Router.get('/team', verifyToken, getAllTeamMembers)
+Router.post('/team', verifyToken, createTeamMember)
+Router.patch('/team/:id', verifyToken, updateTeamMember)
+Router.delete('/team/:id', verifyToken, deleteTeamMember)
+
+// Comment moderation
+Router.get('/comments', verifyToken, getAllComments)
+Router.patch('/comments/:id', verifyToken, updateComment)
+Router.delete('/comments/:id', verifyToken, deleteComment)
 
 // Category 
 Router.post('/create-category', verifyToken, createCategory)

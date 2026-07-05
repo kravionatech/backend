@@ -7,6 +7,7 @@ import Lead from "../../models/leads/lead.model.js";
 import { mediaModel } from "../../models/media/media.model.js";
 import { MessageModel } from "../../models/messages/message.model.js";
 import { newsLatterModel } from "../../models/newslatter/newslatter.model.js";
+import { TeamMemberModel } from "../../models/team/team.model.js";
 
 const ANALYTICS_ROLES = ["admin", "super_admin"];
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -168,6 +169,8 @@ export const getDashboardAnalytics = async (req, res) => {
     const [
       usersTotal,
       activeUsers,
+      teamMembersTotal,
+      activeTeamMembers,
       postsTotal,
       publishedPosts,
       draftPosts,
@@ -197,6 +200,7 @@ export const getDashboardAnalytics = async (req, res) => {
       subscriberMonth,
       mediaMonth,
       commentMonth,
+      teamMemberMonth,
       userRoles,
       postStatuses,
       categoryStatuses,
@@ -216,6 +220,8 @@ export const getDashboardAnalytics = async (req, res) => {
     ] = await Promise.all([
       Auth.countDocuments(),
       Auth.countDocuments({ isActive: true }),
+      TeamMemberModel.countDocuments(),
+      TeamMemberModel.countDocuments({ status: "active" }),
       PostModel.countDocuments(),
       PostModel.countDocuments(publishedPostsMatch),
       PostModel.countDocuments({ status: "draft" }),
@@ -248,6 +254,7 @@ export const getDashboardAnalytics = async (req, res) => {
       monthCounts(newsLatterModel),
       monthCounts(mediaModel, activeMediaMatch),
       monthCounts(CommentModel, approvedCommentsMatch),
+      monthCounts(TeamMemberModel),
       groupByField(Auth, "role"),
       groupByField(PostModel, "status"),
       groupByField(CategoryModel, "status"),
@@ -314,6 +321,13 @@ export const getDashboardAnalytics = async (req, res) => {
         `${activeUsers} active accounts`,
       ),
       buildCard(
+        "team",
+        "Team",
+        teamMembersTotal,
+        teamMemberMonth,
+        `${activeTeamMembers} active team members`,
+      ),
+      buildCard(
         "posts",
         "Posts",
         postsTotal,
@@ -375,6 +389,8 @@ export const getDashboardAnalytics = async (req, res) => {
         summary: {
           usersTotal,
           activeUsers,
+          teamMembersTotal,
+          activeTeamMembers,
           postsTotal,
           publishedPosts,
           draftPosts,
