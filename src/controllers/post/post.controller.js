@@ -277,11 +277,9 @@ export const publicPosts = async (req, res) => {
 
     const [posts, totalPosts] = await Promise.all([
       PostModel.find({ status: "published" })
-        // FIX: `reaction` -> `reactions` (singular field didn't exist on the
-        // schema, so it was never actually being selected). Added a couple
-        // of AEO-relevant fields for richer card previews too.
+        // Keep public cards focused on visible site fields.
         .select(
-          "title slug excerpt author category reactions views featuredImage contentSourceType commentCount tags primaryTopicCluster publishedAt"
+          "title slug excerpt author category views featuredImage contentSourceType commentCount tags primaryTopicCluster publishedAt"
         )
         // FIX: there was no sort at all before — results came back in
         // whatever order Mongo happened to store them in.
@@ -585,6 +583,7 @@ export const singleViewPost = async (req, res) => {
     // Public detail fetch must be read-only. Views are recorded through the
     // engagement endpoint only after a real browser reader opens the article.
     const blog = await PostModel.findOne({ slug, status: "published" })
+      .select("-reactions")
       .populate("relatedPosts", "title slug excerpt featuredImage");
 
     if (!blog) {
