@@ -582,17 +582,10 @@ export const singleViewPost = async (req, res) => {
       return res.status(400).json({ success: false, message: "Slug is required" });
     }
 
-    // FIX: this endpoint had NO status filter at all, so a draft or
-    // archived post's slug — if guessed, leaked, or shared by mistake — was
-    // fully readable by anyone with the URL. Now restricted to "published",
-    // and the view counter is incremented atomically in the same query
-    // instead of a separate read-then-write (which is racy under concurrent
-    // traffic).
-    const blog = await PostModel.findOneAndUpdate(
-      { slug, status: "published" },
-      { $inc: { views: 1 } },
-      { new: true }
-    ).populate("relatedPosts", "title slug excerpt featuredImage");
+    // Public detail fetch must be read-only. Views are recorded through the
+    // engagement endpoint only after a real browser reader opens the article.
+    const blog = await PostModel.findOne({ slug, status: "published" })
+      .populate("relatedPosts", "title slug excerpt featuredImage");
 
     if (!blog) {
       return res.status(404).json({ success: false, message: "Blog not found" });

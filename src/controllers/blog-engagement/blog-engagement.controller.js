@@ -4,6 +4,8 @@ import { PostModel } from "../../models/blog/post.model.js";
 import { PostReactionModel } from "../../models/blog/reaction.model.js";
 
 const REACTION_TYPES = ["like", "dislike", "share"];
+const VIEW_BOT_PATTERN =
+  /bot|crawler|spider|crawling|preview|facebookexternalhit|slurp|bingpreview|whatsapp|telegram|discord|linkedinbot|twitterbot|google-inspectiontool|googlebot|adsbot|mediapartners-google|duckduckbot|baiduspider|yandex|sogou|semrush|ahrefs|mj12bot|dotbot|petalbot|applebot|gptbot|claudebot|perplexitybot/i;
 
 const cleanText = (value = "") => String(value).trim();
 
@@ -23,6 +25,19 @@ const getVisitorId = (req) =>
 
 const findPublishedPost = async (slug) =>
   PostModel.findOne({ slug: cleanText(slug).toLowerCase(), status: "published" });
+
+const isLikelyBotRequest = (req) => {
+  const userAgent = cleanText(req.headers["user-agent"]);
+  const secFetchMode = cleanText(req.headers["sec-fetch-mode"]);
+  const secFetchDest = cleanText(req.headers["sec-fetch-dest"]);
+
+  return (
+    !userAgent ||
+    VIEW_BOT_PATTERN.test(userAgent) ||
+    secFetchMode === "navigate" ||
+    secFetchDest === "document"
+  );
+};
 
 const publicCommentSelect = "authorName website comment status likes createdAt";
 
@@ -151,6 +166,83 @@ export const createPostComment = async (req, res) => {
         },
         summary: reactionSummary(updatedPost || post),
       },
+    });
+  } catch (error) {
+    return handleEngagementError(error, res);
+  }
+};
+
+export const recordPostView = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const visitorId = getVisitorId(req);
+
+    if (!visitorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Visitor id is required.",
+      });
+    }
+
+    const post = await findPublishedPost(slug);
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    if (isLikelyBotRequest(req)) {
+      return res.status(200).json({
+        success: true,
+        message: "View ignored.",
+        data: { summary: reactionSummary(post) },
+      });
+    }
+
+    const existingView = await PostReactionModel.findOne({
+      postID: post._id,
+      visitorId,
+      type: "view",
+    });
+
+    if (existingView) {
+      return res.status(200).json({
+        success: true,
+        message: "View already recorded.",
+        data: { summary: reactionSummary(post) },
+      });
+    }
+
+    try {
+      await PostReactionModel.create({
+        postID: post._id,
+        postSlug: post.slug,
+        visitorId,
+        type: "view",
+        ipHash: getIpHash(req),
+        userAgent: cleanText(req.headers["user-agent"]).slice(0, 300),
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        return res.status(200).json({
+          success: true,
+          message: "View already recorded.",
+          data: { summary: reactionSummary(post) },
+        });
+      }
+
+      throw error;
+    }
+
+    const updatedPost = await PostModel.findByIdAndUpdate(
+      post._id,
+      { $inc: { views: 1 } },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "View recorded successfully.",
+      data: { summary: reactionSummary(updatedPost || post) },
     });
   } catch (error) {
     return handleEngagementError(error, res);

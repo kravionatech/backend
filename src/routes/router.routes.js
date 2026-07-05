@@ -9,7 +9,7 @@ import { createNewsLatter, deleteSubscriber, getAllSubscribers } from "../contro
 import { createMessage, deleteMessage, getAllMessages, getMessageById, updateMessage } from "../controllers/messages/message.controller.js";
 import { createLead, deleteLead, getAllLeads, getLeadById, updateLead } from "../controllers/leads/lead.controller.js";
 import { getDashboardAnalytics } from "../controllers/analytics/analytics.controller.js";
-import { createPostComment, getPostEngagement, reactToPost } from "../controllers/blog-engagement/blog-engagement.controller.js";
+import { createPostComment, getPostEngagement, reactToPost, recordPostView } from "../controllers/blog-engagement/blog-engagement.controller.js";
 import { deleteComment, getAllComments, updateComment } from "../controllers/comments/comments.controller.js";
 import { createTeamMember, deleteTeamMember, getAllTeamMembers, updateTeamMember } from "../controllers/team/team.controller.js";
 import { createUser, deleteUser, getAllUsers, updateUser } from "../controllers/users/users.controller.js";
@@ -70,6 +70,7 @@ Router.delete('/post/:id', verifyToken, deletePost)
 Router.patch('/post/:id', verifyToken, updatePost)
 
 Router.get('/post/:slug/engagement', getPostEngagement)
+Router.post('/post/:slug/views', recordPostView)
 Router.post('/post/:slug/comments', createPostComment)
 Router.post('/post/:slug/reactions', reactToPost)
 Router.get('/post/:slug', singleViewPost)
