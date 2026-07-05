@@ -27,15 +27,8 @@ const findPublishedPost = async (slug) =>
 
 const isLikelyBotRequest = (req) => {
   const userAgent = cleanText(req.headers["user-agent"]);
-  const secFetchMode = cleanText(req.headers["sec-fetch-mode"]);
-  const secFetchDest = cleanText(req.headers["sec-fetch-dest"]);
 
-  return (
-    !userAgent ||
-    VIEW_BOT_PATTERN.test(userAgent) ||
-    secFetchMode === "navigate" ||
-    secFetchDest === "document"
-  );
+  return userAgent ? VIEW_BOT_PATTERN.test(userAgent) : false;
 };
 
 const publicCommentSelect = "authorName comment status createdAt";
