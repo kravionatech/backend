@@ -8,6 +8,8 @@ import { upload } from "../middleware/upload.middleware.js";
 import { createNewsLatter, deleteSubscriber, getAllSubscribers } from "../controllers/newslatter/newslatter.controller.js";
 import { createMessage, deleteMessage, getAllMessages, getMessageById, updateMessage } from "../controllers/messages/message.controller.js";
 import { createLead, deleteLead, getAllLeads, getLeadById, updateLead } from "../controllers/leads/lead.controller.js";
+import { getDashboardAnalytics } from "../controllers/analytics/analytics.controller.js";
+import { createPostComment, getPostEngagement, reactToPost } from "../controllers/blog-engagement/blog-engagement.controller.js";
 
 const Router  = express.Router();
 
@@ -18,6 +20,9 @@ Router.post('/create-account',createAccount)
 Router.post('/login',loginAccountWithPassword)
 Router.get('/me',verifyToken, getMe)
 Router.post('/auth/logout', verifyToken, logoutUser)
+
+// Analytics
+Router.get('/analytics/dashboard', verifyToken, getDashboardAnalytics)
 
 // Category 
 Router.post('/create-category', verifyToken, createCategory)
@@ -45,6 +50,9 @@ Router.delete('/post/:id', verifyToken, deletePost)
 // replacement of the whole document.
 Router.patch('/post/:id', verifyToken, updatePost)
 
+Router.get('/post/:slug/engagement', getPostEngagement)
+Router.post('/post/:slug/comments', createPostComment)
+Router.post('/post/:slug/reactions', reactToPost)
 Router.get('/post/:slug', singleViewPost)
 
 // FIX: new route — mirrors the /private/posts naming used for the list
