@@ -41,13 +41,42 @@ const isLikelyBotRequest = (req) => {
 
 const publicCommentSelect = "authorName website comment status likes createdAt";
 
-const reactionSummary = (post) => ({
-  views: Math.max(post.views || 0, 0),
-  likes: Math.max(post.reactions?.like || 0, 0),
-  dislikes: Math.max(post.reactions?.dislike || 0, 0),
-  shares: Math.max(post.reactions?.share || 0, 0),
-  commentCount: Math.max(post.commentCount || 0, 0),
-});
+const getSelectedPostReaction = async (postID, visitorId) => {
+  if (!visitorId) return "";
+
+  const reaction = await PostReactionModel.findOne({
+    postID,
+    visitorId,
+    type: { $in: ["like", "dislike"] },
+  })
+    .select("type")
+    .lean();
+
+  return reaction?.type || "";
+};
+
+const getEngagementSummary = async (post) => {
+  const [reactionCounts, approvedCommentCount] = await Promise.all([
+    PostReactionModel.aggregate([
+      { $match: { postID: post._id } },
+      { $group: { _id: "$type", count: { $sum: 1 } } },
+    ]),
+    CommentModel.countDocuments({ postID: post._id, status: "approved" }),
+  ]);
+
+  const counts = reactionCounts.reduce((acc, item) => {
+    acc[item._id] = item.count;
+    return acc;
+  }, {});
+
+  return {
+    views: Math.max(post.views || 0, counts.view || 0, 0),
+    likes: Math.max(post.reactions?.like || 0, counts.like || 0, 0),
+    dislikes: Math.max(post.reactions?.dislike || 0, counts.dislike || 0, 0),
+    shares: Math.max(post.reactions?.share || 0, counts.share || 0, 0),
+    commentCount: Math.max(post.commentCount || 0, approvedCommentCount || 0, 0),
+  };
+};
 
 const handleEngagementError = (error, res) => {
   if (error.name === "ValidationError") {
@@ -82,21 +111,14 @@ export const getPostEngagement = async (req, res) => {
       return res.status(404).json({ success: false, message: "Post not found" });
     }
 
-    const [comments, reaction] = await Promise.all([
+    const [comments, selectedReaction, summary] = await Promise.all([
       CommentModel.find({ postID: post._id, status: "approved" })
         .select(publicCommentSelect)
         .sort({ createdAt: -1 })
         .limit(50)
         .lean(),
-      visitorId
-        ? PostReactionModel.findOne({
-            postID: post._id,
-            visitorId,
-            type: { $in: ["like", "dislike"] },
-          })
-            .select("type")
-            .lean()
-        : null,
+      getSelectedPostReaction(post._id, visitorId),
+      getEngagementSummary(post),
     ]);
 
     return res.status(200).json({
@@ -104,8 +126,8 @@ export const getPostEngagement = async (req, res) => {
       data: {
         postSlug: post.slug,
         isCommentEnabled: post.isCommentEnabled,
-        selectedReaction: reaction?.type || "",
-        summary: reactionSummary(post),
+        selectedReaction,
+        summary,
         comments,
       },
     });
@@ -150,6 +172,7 @@ export const createPostComment = async (req, res) => {
       { $inc: { commentCount: 1 } },
       { new: true },
     );
+    const summary = await getEngagementSummary(updatedPost || post);
 
     return res.status(201).json({
       success: true,
@@ -164,7 +187,7 @@ export const createPostComment = async (req, res) => {
           likes: comment.likes,
           createdAt: comment.createdAt,
         },
-        summary: reactionSummary(updatedPost || post),
+        summary,
       },
     });
   } catch (error) {
@@ -191,10 +214,12 @@ export const recordPostView = async (req, res) => {
     }
 
     if (isLikelyBotRequest(req)) {
+      const summary = await getEngagementSummary(post);
+
       return res.status(200).json({
         success: true,
         message: "View ignored.",
-        data: { summary: reactionSummary(post) },
+        data: { summary },
       });
     }
 
@@ -205,10 +230,12 @@ export const recordPostView = async (req, res) => {
     });
 
     if (existingView) {
+      const summary = await getEngagementSummary(post);
+
       return res.status(200).json({
         success: true,
         message: "View already recorded.",
-        data: { summary: reactionSummary(post) },
+        data: { summary },
       });
     }
 
@@ -223,10 +250,12 @@ export const recordPostView = async (req, res) => {
       });
     } catch (error) {
       if (error.code === 11000) {
+        const summary = await getEngagementSummary(post);
+
         return res.status(200).json({
           success: true,
           message: "View already recorded.",
-          data: { summary: reactionSummary(post) },
+          data: { summary },
         });
       }
 
@@ -239,10 +268,12 @@ export const recordPostView = async (req, res) => {
       { new: true },
     );
 
+    const summary = await getEngagementSummary(updatedPost || post);
+
     return res.status(200).json({
       success: true,
       message: "View recorded successfully.",
-      data: { summary: reactionSummary(updatedPost || post) },
+      data: { summary },
     });
   } catch (error) {
     return handleEngagementError(error, res);
@@ -301,6 +332,8 @@ export const reactToPost = async (req, res) => {
         });
         increment["reactions.share"] = 1;
       }
+
+      selectedReaction = await getSelectedPostReaction(post._id, visitorId);
     } else {
       const existing = await PostReactionModel.findOne({
         postID: post._id,
@@ -323,17 +356,22 @@ export const reactToPost = async (req, res) => {
         increment[`reactions.${type}`] = 1;
         selectedReaction = type;
       } else {
-        await PostReactionModel.create({
-          postID: post._id,
-          postSlug: post.slug,
-          visitorId,
-          type,
-          ipHash: getIpHash(req),
-          userAgent: cleanText(req.headers["user-agent"]).slice(0, 300),
-        });
+        try {
+          await PostReactionModel.create({
+            postID: post._id,
+            postSlug: post.slug,
+            visitorId,
+            type,
+            ipHash: getIpHash(req),
+            userAgent: cleanText(req.headers["user-agent"]).slice(0, 300),
+          });
 
-        increment[`reactions.${type}`] = 1;
-        selectedReaction = type;
+          increment[`reactions.${type}`] = 1;
+          selectedReaction = type;
+        } catch (error) {
+          if (error.code !== 11000) throw error;
+          selectedReaction = await getSelectedPostReaction(post._id, visitorId);
+        }
       }
     }
 
@@ -345,12 +383,14 @@ export const reactToPost = async (req, res) => {
         )
       : post;
 
+    const summary = await getEngagementSummary(updatedPost || post);
+
     return res.status(200).json({
       success: true,
       message: "Reaction updated successfully.",
       data: {
         selectedReaction,
-        summary: reactionSummary(updatedPost || post),
+        summary,
       },
     });
   } catch (error) {
