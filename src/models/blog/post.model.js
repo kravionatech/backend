@@ -51,7 +51,7 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: [true, "Excerpt is required"],
       trim: true,
-      maxlength: [200, "Max 200 characters"],
+      maxlength: [500, "Max 200 characters"],
       minlength: [10, "Min 10 characters"],
       index: true,
     },
@@ -187,18 +187,18 @@ const postSchema = new mongoose.Schema(
     metaTitle: {
       type: String,
       trim: true,
-      maxlength: [100, "SEO titles max 100 chars"],
+      maxlength: [200, "SEO titles max 100 chars"],
       default: function () {
-        return this.title ? this.title.slice(0, 100) : "";
+        return this.title ? this.title.slice(0, 120) : "";
       },
     },
 
     metaDescription: {
       type: String,
       trim: true,
-      maxlength: [200, "SEO descriptions max 200 chars"],
+      maxlength: [300, "SEO descriptions max 200 chars"],
       default: function () {
-        return this.excerpt ? this.excerpt.slice(0, 200) : "";
+        return this.excerpt ? this.excerpt.slice(0, 300) : "";
       },
     },
 
