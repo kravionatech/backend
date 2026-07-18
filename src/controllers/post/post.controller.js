@@ -394,7 +394,7 @@ export const privatePosts = async (req, res) => {
     // FIX: added pagination — the original fetched every post the user had
     // ever written in a single query with no limit at all.
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
     // Admin/super_admin manage everyone's posts; editors see their own.
