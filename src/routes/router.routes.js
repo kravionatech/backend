@@ -13,6 +13,7 @@ import { createPostComment, getPostEngagement, recordPostView } from "../control
 import { deleteComment, getAllComments, updateComment } from "../controllers/comments/comments.controller.js";
 import { createTeamMember, deleteTeamMember, getAllTeamMembers, updateTeamMember } from "../controllers/team/team.controller.js";
 import { createUser, deleteUser, getAllUsers, updateUser } from "../controllers/users/users.controller.js";
+import { mcpLogin } from "../controllers/mcp/ mcp.auth.controller.js";
 
 const Router  = express.Router();
 
@@ -51,6 +52,7 @@ Router.get('/category/:id', getCategoryByIdOrSlug)
 Router.put('/category/:id', verifyToken, updateCategory)
 Router.delete('/category/:id', verifyToken, deleteCategory)
 
+Router.post("/mcp-login", mcpLogin);
 
 // Post Routing
 

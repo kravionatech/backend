@@ -68,6 +68,57 @@ const validateCategory = async (categoryInput) => {
   });
 };
 
+const parseDateInput = (value) => {
+  if (!value) return null;
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const normalizePublishingFields = ({ status, scheduledAt, currentPost }) => {
+  const nextStatus = status || currentPost?.status || "draft";
+  const scheduleDate = parseDateInput(scheduledAt ?? currentPost?.scheduledAt);
+
+  if (nextStatus === "scheduled") {
+    if (!scheduleDate) {
+      return {
+        error: {
+          status: 400,
+          message: "scheduledAt is required when scheduling a post",
+        },
+      };
+    }
+
+    if (scheduleDate <= new Date()) {
+      return {
+        error: {
+          status: 400,
+          message: "Scheduled date must be in the future",
+        },
+      };
+    }
+  }
+
+  return {
+    status: nextStatus,
+    scheduledAt: nextStatus === "scheduled" ? scheduleDate : undefined,
+  };
+};
+
+const publishDueScheduledPosts = async () => {
+  const now = new Date();
+
+  await PostModel.updateMany(
+    { status: "scheduled", scheduledAt: { $lte: now } },
+    { $set: { status: "published", publishedAt: now }, $unset: { scheduledAt: "" } },
+  );
+};
+
+const publicPostFilter = () => ({
+  status: "published",
+  $or: [{ publishedAt: { $exists: false } }, { publishedAt: null }, { publishedAt: { $lte: new Date() } }],
+});
+
 // ==========================================
 // 1. Create Post
 // ==========================================
@@ -140,6 +191,7 @@ export const createPost = async (req, res) => {
       relatedPosts,
       isAccessibleForFree,
       status,
+      scheduledAt,
       contentSourceType,
       isCommentEnabled,
       category,
@@ -161,6 +213,15 @@ export const createPost = async (req, res) => {
 
     if (!featuredImage?.url) {
       return res.status(400).json({ message: "featuredImage.url is required", success: false });
+    }
+
+    const publishing = normalizePublishingFields({ status, scheduledAt });
+
+    if (publishing.error) {
+      return res.status(publishing.error.status).json({
+        success: false,
+        message: publishing.error.message,
+      });
     }
 
     // FIX: slug is now optional — derived from the title via slugify if the
@@ -232,7 +293,8 @@ export const createPost = async (req, res) => {
       statistics: Array.isArray(statistics) ? statistics : [],
       relatedPosts: Array.isArray(relatedPosts) ? relatedPosts : [],
       isAccessibleForFree: isAccessibleForFree ?? true,
-      status,
+      status: publishing.status,
+      scheduledAt: publishing.scheduledAt,
       contentSourceType,
       isCommentEnabled,
       userID: existingUser._id,
@@ -271,12 +333,15 @@ export const createPost = async (req, res) => {
 // ==========================================
 export const publicPosts = async (req, res) => {
   try {
+    await publishDueScheduledPosts();
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const filter = publicPostFilter();
 
     const [posts, totalPosts] = await Promise.all([
-      PostModel.find({ status: "published" })
+      PostModel.find(filter)
         // Keep public cards focused on visible site fields.
         .select(
           "title slug excerpt author category views featuredImage contentSourceType commentCount tags primaryTopicCluster publishedAt"
@@ -288,7 +353,7 @@ export const publicPosts = async (req, res) => {
         .limit(limit)
         .lean(),
 
-      PostModel.countDocuments({ status: "published" }),
+      PostModel.countDocuments(filter),
     ]);
 
     return res.status(200).json({
@@ -314,6 +379,8 @@ export const publicPosts = async (req, res) => {
 // ==========================================
 export const privatePosts = async (req, res) => {
   try {
+    await publishDueScheduledPosts();
+
     const user = req.user;
 
     if (!user) {
@@ -337,7 +404,7 @@ export const privatePosts = async (req, res) => {
       PostModel.find(filter)
         // FIX: same `reaction` -> `reactions` typo as publicPosts.
         .select(
-          "title slug excerpt author category reactions views featuredImage contentSourceType commentCount createdAt updatedAt publishedAt status"
+          "title slug excerpt author category reactions views featuredImage contentSourceType commentCount createdAt updatedAt publishedAt scheduledAt status"
         )
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -407,6 +474,8 @@ export const deletePost = async (req, res) => {
 // pre('save') hook.
 export const updatePost = async (req, res) => {
   try {
+    await publishDueScheduledPosts();
+
     const user = req.user;
 
     if (!user) {
@@ -464,6 +533,7 @@ export const updatePost = async (req, res) => {
       relatedPosts,
       isAccessibleForFree,
       status,
+      scheduledAt,
       contentSourceType,
       isCommentEnabled,
       category,
@@ -544,7 +614,23 @@ export const updatePost = async (req, res) => {
     if (statistics !== undefined) post.statistics = statistics;
     if (relatedPosts !== undefined) post.relatedPosts = relatedPosts;
     if (isAccessibleForFree !== undefined) post.isAccessibleForFree = isAccessibleForFree;
-    if (status !== undefined) post.status = status;
+    if (status !== undefined || scheduledAt !== undefined) {
+      const publishing = normalizePublishingFields({
+        status,
+        scheduledAt,
+        currentPost: post,
+      });
+
+      if (publishing.error) {
+        return res.status(publishing.error.status).json({
+          success: false,
+          message: publishing.error.message,
+        });
+      }
+
+      post.status = publishing.status;
+      post.scheduledAt = publishing.scheduledAt;
+    }
     if (contentSourceType !== undefined) post.contentSourceType = contentSourceType;
     if (isCommentEnabled !== undefined) post.isCommentEnabled = isCommentEnabled;
 
@@ -574,6 +660,8 @@ export const updatePost = async (req, res) => {
 // ==========================================
 export const singleViewPost = async (req, res) => {
   try {
+    await publishDueScheduledPosts();
+
     const { slug } = req.params;
 
     if (!slug) {
@@ -582,7 +670,7 @@ export const singleViewPost = async (req, res) => {
 
     // Public detail fetch must be read-only. Views are recorded through the
     // engagement endpoint only after a real browser reader opens the article.
-    const blog = await PostModel.findOne({ slug, status: "published" })
+    const blog = await PostModel.findOne({ slug, ...publicPostFilter() })
       .select("-reactions")
       .populate("relatedPosts", "title slug excerpt featuredImage");
 
@@ -605,6 +693,8 @@ export const singleViewPost = async (req, res) => {
 // this powers an edit screen, not a public card.
 export const privateViewPost = async (req, res) => {
   try {
+    await publishDueScheduledPosts();
+
     const user = req.user;
 
     if (!user) {

@@ -293,6 +293,7 @@ const postSchema = new mongoose.Schema(
     // Separate from createdAt so you can schedule/backdate without lying
     // about when the document actually entered the DB.
     publishedAt: { type: Date },
+    scheduledAt: { type: Date },
 
     // Track AI vs Human content (Google 2026 guidelines)
     contentSourceType: {
@@ -320,6 +321,7 @@ const postSchema = new mongoose.Schema(
 // INDEXES
 // ==========================================
 postSchema.index({ status: 1, publishedAt: -1 }); // homepage / listing feeds
+postSchema.index({ status: 1, scheduledAt: 1 }); // scheduled publishing lookup
 postSchema.index({ categoryID: 1, status: 1, publishedAt: -1 }); // category pages
 postSchema.index({ tags: 1 });
 postSchema.index(
@@ -351,6 +353,11 @@ postSchema.pre("validate", function (next) {
   if (!this.featuredImage?.altText && this.focusKeywords?.length) {
     this.featuredImage.altText = this.focusKeywords[0];
   }
+
+  if (this.status === "scheduled" && !this.scheduledAt) {
+    this.invalidate("scheduledAt", "Scheduled date is required");
+  }
+
   next();
 });
 
@@ -363,6 +370,10 @@ postSchema.pre("save", function (next) {
 
   if (this.isModified("status") && this.status === "published" && !this.publishedAt) {
     this.publishedAt = new Date();
+  }
+
+  if (this.isModified("status") && this.status !== "scheduled") {
+    this.scheduledAt = undefined;
   }
 
   if (this.isModified("content")) {
