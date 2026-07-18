@@ -59,11 +59,11 @@ const postSchema = new mongoose.Schema(
     // ---- AEO: a direct, self-contained answer for voice assistants and
     // "People Also Ask" / featured-snippet boxes. 1-2 sentences, no
     // "as mentioned above" references — it has to stand alone.
-    quickAnswer: {
-      type: String,
-      trim: true,
-      maxlength: [320, "Keep the quick answer snippet-sized (~300 chars)"],
-    },
+ quickAnswer: {
+  type: String,
+  trim: true,
+  maxlength: [600, "Keep the quick answer snippet-sized (~600 chars)"],
+},
 
     // ---- GEO: standalone, citable facts. AI Overviews / ChatGPT /
     // Perplexity tend to lift bullet-style claims like these almost
